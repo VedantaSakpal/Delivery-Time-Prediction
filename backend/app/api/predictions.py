@@ -1,0 +1,59 @@
+from fastapi import APIRouter, Depends, HTTPException
+from typing import List, Dict
+from app.schemas.prediction import PredictionRequest
+from app.ml.predictor import predict_delivery_time
+from app.api.deps import get_current_user
+from app.database.supabase import supabase
+
+router = APIRouter()
+
+@router.post("/predict")
+def create_prediction(request: PredictionRequest, current_user: dict = Depends(get_current_user)):
+    try:
+        # 1. Run prediction
+        # Get raw dict using actual field names (Distance_km, etc.) instead of frontend aliases
+        model_input = request.model_dump(by_alias=False)
+        prediction_result = predict_delivery_time(model_input)
+        
+        # 2. Store in Supabase
+        db_payload = {
+            "user_id": current_user["id"],
+            "distance_km": request.Distance_km,
+            "weather": request.Weather,
+            "traffic_level": request.Traffic_Level,
+            "time_of_day": request.Time_of_Day,
+            "vehicle_type": request.Vehicle_Type,
+            "preparation_time_min": request.Preparation_Time_min,
+            "courier_experience_yrs": request.Courier_Experience_yrs,
+            "predicted_delivery_time_min": prediction_result["predicted_delivery_time_min"],
+            "prediction_category": prediction_result["prediction_category"],
+            "prediction_range_lower": prediction_result["prediction_range"]["lower"],
+            "prediction_range_upper": prediction_result["prediction_range"]["upper"],
+            "reliability": prediction_result["reliability"],
+            "explanation": prediction_result["explanation"]
+        }
+        
+        supabase.table("predictions").insert(db_payload).execute()
+        
+        return {
+            "success": True,
+            "prediction": prediction_result
+        }
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.get("/history")
+def get_prediction_history(current_user: dict = Depends(get_current_user), limit: int = 50, offset: int = 0):
+    try:
+        response = supabase.table("predictions") \
+            .select("*") \
+            .eq("user_id", current_user["id"]) \
+            .order("created_at", desc=True) \
+            .range(offset, offset + limit - 1) \
+            .execute()
+        
+        return {"predictions": response.data}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))

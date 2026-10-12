@@ -1,0 +1,252 @@
+import { useState } from 'react';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
+import axios from 'axios';
+import { supabase } from '../../utils/supabase';
+import {
+  CreditCard, MapPin, Loader2, CheckCircle, Clock, ShieldCheck,
+  ArrowRight, AlertTriangle, BarChart2
+} from 'lucide-react';
+
+const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/api\/?$/, '');
+
+const RELIABILITY_CONFIG = {
+  High:   { cls: 'bg-green-100 text-green-700 border-green-200',  icon: ShieldCheck,     label: 'High' },
+  Medium: { cls: 'bg-yellow-100 text-yellow-700 border-yellow-200', icon: AlertTriangle, label: 'Medium' },
+  Low:    { cls: 'bg-red-100 text-red-700 border-red-200',         icon: AlertTriangle,   label: 'Low'  },
+};
+
+export default function Checkout() {
+  const { state }    = useLocation();
+  const navigate     = useNavigate();
+  const [address,  setAddress]    = useState('');
+  const [payment,  setPayment]    = useState('cash');
+  const [loading,  setLoading]    = useState(false);
+  const [confirmed, setConfirmed] = useState(null); // holds {order_id, prediction}
+
+  if (!state || !state.items || state.items.length === 0) {
+    return (
+      <div className="p-8 text-center">
+        <p className="text-slate-500">No items in checkout.</p>
+        <Link to="/user/restaurants" className="mt-4 inline-block text-blue-600 hover:underline">Browse Restaurants</Link>
+      </div>
+    );
+  }
+
+  const { restaurant_id, items } = state;
+  const total = items.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+
+  const handlePlaceOrder = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      const token = session?.session?.access_token;
+
+      const payload = {
+        restaurant_id,
+        items: items.map(i => ({ menu_item_id: i.menu_item_id, quantity: i.quantity })),
+        delivery_address: address,
+        payment_method:   payment,
+      };
+
+      const res = await axios.post(`${API_URL}/api/orders/`, payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setConfirmed({ order_id: res.data.order_id, prediction: res.data.prediction });
+    } catch (err) {
+      alert(err.response?.data?.detail || 'Failed to place order.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /* ── Order Confirmed Screen ── */
+  if (confirmed) {
+    const pred = confirmed.prediction;
+    const rel  = RELIABILITY_CONFIG[pred?.reliability] || RELIABILITY_CONFIG.Medium;
+    const RelIcon = rel.icon;
+
+    return (
+      <div className="max-w-2xl mx-auto p-8 space-y-6">
+        {/* Success banner */}
+        <div className="bg-green-50 border border-green-200 rounded-2xl p-6 flex items-center gap-4">
+          <CheckCircle className="w-10 h-10 text-green-500 flex-shrink-0" />
+          <div>
+            <h2 className="text-xl font-bold text-green-800">Order Placed Successfully!</h2>
+            <p className="text-sm text-green-600 mt-0.5">Order #{confirmed.order_id.slice(0, 8)} · The restaurant has been notified.</p>
+          </div>
+        </div>
+
+        {/* ML Prediction card */}
+        {pred && (
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
+              <h3 className="text-white font-bold text-lg flex items-center gap-2">
+                <Clock className="w-5 h-5" /> AI Delivery Estimate
+              </h3>
+              <p className="text-blue-100 text-xs mt-0.5">Powered by Machine Learning</p>
+            </div>
+
+            <div className="p-6 space-y-5">
+              {/* Time + Range */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-slate-50 rounded-xl p-4 text-center border border-slate-100">
+                  <p className="text-xs text-slate-500 font-medium mb-1">Estimated Time</p>
+                  <p className="text-4xl font-extrabold text-slate-800">
+                    {Math.round(pred.predicted_delivery_time_min)}
+                    <span className="text-lg font-medium text-slate-400 ml-1">min</span>
+                  </p>
+                </div>
+                <div className="bg-slate-50 rounded-xl p-4 text-center border border-slate-100">
+                  <p className="text-xs text-slate-500 font-medium mb-1">Expected Range</p>
+                  <p className="text-2xl font-bold text-slate-700">
+                    {Math.round(pred.prediction_range?.lower)} –{' '}
+                    {Math.round(pred.prediction_range?.upper)}
+                    <span className="text-sm font-medium text-slate-400 ml-1">min</span>
+                  </p>
+                </div>
+              </div>
+
+              {/* Reliability */}
+              <div className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border ${rel.cls}`}>
+                <RelIcon className="w-4 h-4 flex-shrink-0" />
+                <span className="text-sm font-semibold">Reliability: {rel.label}</span>
+              </div>
+
+              {/* SHAP Explanation */}
+              {pred.explanation && pred.explanation.length > 0 && (
+                <div>
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                    <BarChart2 className="w-3.5 h-3.5" /> Why this estimate?
+                  </p>
+                  <div className="space-y-2">
+                    {pred.explanation.slice(0, 5).map((exp, i) => {
+                      const isPos = exp.impact > 0;
+                      const maxImpact = Math.max(...pred.explanation.map(e => Math.abs(e.impact)));
+                      const pct = maxImpact > 0 ? (Math.abs(exp.impact) / maxImpact) * 100 : 0;
+                      return (
+                        <div key={i}>
+                          <div className="flex justify-between text-xs text-slate-600 mb-0.5">
+                            <span className="font-medium">{exp.feature}</span>
+                            <span className={isPos ? 'text-red-500' : 'text-green-600'}>
+                              {isPos ? '+' : ''}{exp.impact.toFixed(1)} min
+                            </span>
+                          </div>
+                          <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                            <div
+                              className={`h-1.5 rounded-full ${isPos ? 'bg-red-400' : 'bg-green-400'}`}
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Actions */}
+        <div className="flex gap-3">
+          <Link
+            to="/user/orders"
+            className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors"
+          >
+            Track Order <ArrowRight className="w-4 h-4" />
+          </Link>
+          <Link
+            to="/user/restaurants"
+            className="flex-1 flex items-center justify-center gap-2 bg-slate-100 text-slate-700 py-3 rounded-xl font-semibold hover:bg-slate-200 transition-colors"
+          >
+            Order More
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  /* ── Checkout Form ── */
+  return (
+    <div className="max-w-4xl mx-auto p-8 flex flex-col md:flex-row gap-8">
+      {/* Form */}
+      <div className="flex-1 bg-white p-7 rounded-2xl shadow-sm border border-slate-100">
+        <h2 className="text-2xl font-bold mb-6 text-slate-800">Complete Your Order</h2>
+        <form onSubmit={handlePlaceOrder} className="space-y-5">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Delivery Address</label>
+            <div className="relative">
+              <MapPin className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
+              <input
+                type="text" required
+                value={address} onChange={(e) => setAddress(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 text-sm"
+                placeholder="e.g. 42 MG Road, Apt 3C, Mumbai"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Payment Method</label>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { val: 'cash', label: '💵 Cash on Delivery' },
+                { val: 'card', label: '💳 Card / UPI' },
+              ].map(opt => (
+                <label
+                  key={opt.val}
+                  className={`flex items-center gap-2 border rounded-xl px-4 py-3 cursor-pointer text-sm font-medium transition-colors ${
+                    payment === opt.val
+                      ? 'border-blue-500 bg-blue-50 text-blue-700'
+                      : 'border-slate-200 text-slate-600 hover:border-slate-300'
+                  }`}
+                >
+                  <input
+                    type="radio" name="payment" value={opt.val}
+                    checked={payment === opt.val}
+                    onChange={() => setPayment(opt.val)}
+                    className="hidden"
+                  />
+                  {opt.label}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="pt-2">
+            <p className="text-xs text-slate-400 flex items-center gap-1 mb-3">
+              <Clock className="w-3.5 h-3.5" /> ML-powered delivery estimate will be generated on order placement
+            </p>
+            <button
+              type="submit" disabled={loading}
+              className="w-full bg-blue-600 text-white font-semibold py-3 rounded-xl hover:bg-blue-700 flex items-center justify-center gap-2 transition-colors disabled:opacity-60"
+            >
+              {loading
+                ? <><Loader2 className="animate-spin w-5 h-5" /> Placing order...</>
+                : 'Place Order'}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* Summary */}
+      <div className="w-full md:w-80 bg-slate-50 p-6 rounded-2xl border border-slate-200 h-fit">
+        <h3 className="text-lg font-bold mb-4 text-slate-800">Order Summary</h3>
+        <div className="space-y-3 mb-6">
+          {items.map((item, idx) => (
+            <div key={idx} className="flex justify-between text-sm">
+              <span className="text-slate-600">{item.quantity}× {item.name}</span>
+              <span className="font-medium text-slate-800">${(item.price * item.quantity).toFixed(2)}</span>
+            </div>
+          ))}
+        </div>
+        <div className="border-t border-slate-200 pt-4 flex justify-between font-bold text-lg">
+          <span>Total</span>
+          <span className="text-green-600">${total.toFixed(2)}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
