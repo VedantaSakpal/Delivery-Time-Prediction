@@ -101,6 +101,7 @@ Never expose the Supabase service-role key in frontend code or commit secret cre
 
 **Vedant Sakpal**
 **Vibhas Kadam**
+**Sharvari Lohate**
 
 Full-Stack Development | Machine Learning | Explainable AI
 
