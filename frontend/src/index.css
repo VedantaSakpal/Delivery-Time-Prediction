@@ -1,15 +1,166 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #3b82f6;
-  --color-primary-dark: #2563eb;
-  --color-secondary: #f43f5e;
-  --color-background: #f8fafc;
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Fraunces', Georgia, serif;
+  --font-display: 'Fraunces', Georgia, serif;
+
+  --color-primary: #e25822;
+  --color-primary-hover: #c94615;
+  --color-primary-light: #fff2ea;
+  --color-primary-muted: #fbd5c3;
+
+  --color-secondary: #16a34a;
+  --color-secondary-light: #f0fdf4;
+  
+  --color-accent: #f59e0b;
+  --color-accent-light: #fef3c7;
+
+  --color-background: #faf7f2;
   --color-surface: #ffffff;
+  --color-surface-subtle: #f5efe6;
+  
+  --color-text-main: #191411;
+  --color-text-muted: #6e6157;
+  --color-border: #ece4d8;
 }
 
 body {
-  background-color: var(--color-background);
-  color: #1e293b;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: #faf7f2;
+  color: #191411;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, .font-serif, .font-display {
+  font-family: 'Fraunces', Georgia, serif;
+}
+
+/* Authentic Culinary Typography Styling */
+.editorial-italic {
+  font-family: 'Fraunces', Georgia, serif;
+  font-style: italic;
+  font-weight: 500;
+}
+
+/* Custom Delight Animations */
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(0.8deg);
+  }
+}
+
+@keyframes floatReverse {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(8px) rotate(-0.8deg);
+  }
+}
+
+@keyframes steamPulse {
+  0% {
+    opacity: 0.2;
+    transform: translateY(0) scale(0.95);
+  }
+  50% {
+    opacity: 0.7;
+    transform: translateY(-8px) scale(1.08);
+  }
+  100% {
+    opacity: 0.2;
+    transform: translateY(0) scale(0.95);
+  }
+}
+
+@keyframes marqueeAnim {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+.animate-float-slow {
+  animation: floatSlow 5s ease-in-out infinite;
+}
+
+.animate-float-reverse {
+  animation: floatReverse 6s ease-in-out infinite;
+}
+
+.animate-steam {
+  animation: steamPulse 3s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2.5s ease-in-out infinite;
+}
+
+.marquee-container {
+  display: flex;
+  overflow: hidden;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.marquee-content {
+  display: flex;
+  flex-shrink: 0;
+  min-width: 100%;
+  animation: marqueeAnim 35s linear infinite;
+}
+
+.marquee-container:hover .marquee-content {
+  animation-play-state: paused;
+}
+
+/* Glassmorphism & Culinary cards */
+.glass-culinary {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(236, 228, 216, 0.9);
+}
+
+.glass-culinary-dark {
+  background: rgba(25, 20, 17, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #faf7f2;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #dfd5c7;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #c5b8a6;
 }

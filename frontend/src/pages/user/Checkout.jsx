@@ -68,57 +68,57 @@ export default function Checkout() {
     const RelIcon = rel.icon;
 
     return (
-      <div className="max-w-2xl mx-auto p-8 space-y-6">
+      <div className="max-w-2xl mx-auto p-6 sm:p-8 space-y-6">
         {/* Success banner */}
-        <div className="bg-green-50 border border-green-200 rounded-2xl p-6 flex items-center gap-4">
-          <CheckCircle className="w-10 h-10 text-green-500 flex-shrink-0" />
+        <div className="bg-emerald-50 border border-emerald-200 rounded-3xl p-6 flex items-center gap-4">
+          <CheckCircle className="w-10 h-10 text-emerald-600 shrink-0" />
           <div>
-            <h2 className="text-xl font-bold text-green-800">Order Placed Successfully!</h2>
-            <p className="text-sm text-green-600 mt-0.5">Order #{confirmed.order_id.slice(0, 8)} · The restaurant has been notified.</p>
+            <h2 className="font-display text-xl font-black text-emerald-950">Khana Order Placed!</h2>
+            <p className="text-xs text-emerald-700 mt-0.5">Order #{confirmed.order_id.slice(0, 8)} · The kitchen has started warming up the kadai.</p>
           </div>
         </div>
 
         {/* ML Prediction card */}
         {pred && (
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
-              <h3 className="text-white font-bold text-lg flex items-center gap-2">
-                <Clock className="w-5 h-5" /> AI Delivery Estimate
+          <div className="bg-white rounded-3xl border border-[#ECE4D8] shadow-sm overflow-hidden">
+            <div className="bg-gradient-to-r from-orange-600 to-amber-600 px-6 py-4">
+              <h3 className="text-white font-display font-black text-lg flex items-center gap-2">
+                <Clock className="w-5 h-5" /> Zaika AI Delivery Estimate
               </h3>
-              <p className="text-blue-100 text-xs mt-0.5">Powered by Machine Learning</p>
+              <p className="text-orange-100 text-xs mt-0.5">Calculated with 7-factor linear regression ML model</p>
             </div>
 
             <div className="p-6 space-y-5">
               {/* Time + Range */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-slate-50 rounded-xl p-4 text-center border border-slate-100">
-                  <p className="text-xs text-slate-500 font-medium mb-1">Estimated Time</p>
-                  <p className="text-4xl font-extrabold text-slate-800">
+                <div className="bg-[#FAF7F2] rounded-2xl p-4 text-center border border-[#ECE4D8]">
+                  <p className="text-xs text-[#938376] font-bold uppercase tracking-wider mb-1">Estimated Arrival</p>
+                  <p className="text-4xl font-display font-black text-orange-600">
                     {Math.round(pred.predicted_delivery_time_min)}
-                    <span className="text-lg font-medium text-slate-400 ml-1">min</span>
+                    <span className="text-lg font-medium text-[#6E6157] ml-1">min</span>
                   </p>
                 </div>
-                <div className="bg-slate-50 rounded-xl p-4 text-center border border-slate-100">
-                  <p className="text-xs text-slate-500 font-medium mb-1">Expected Range</p>
-                  <p className="text-2xl font-bold text-slate-700">
+                <div className="bg-[#FAF7F2] rounded-2xl p-4 text-center border border-[#ECE4D8]">
+                  <p className="text-xs text-[#938376] font-bold uppercase tracking-wider mb-1">Expected Interval</p>
+                  <p className="text-2xl font-bold text-[#191411]">
                     {Math.round(pred.prediction_range?.lower)} –{' '}
                     {Math.round(pred.prediction_range?.upper)}
-                    <span className="text-sm font-medium text-slate-400 ml-1">min</span>
+                    <span className="text-sm font-medium text-[#6E6157] ml-1">min</span>
                   </p>
                 </div>
               </div>
 
               {/* Reliability */}
               <div className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border ${rel.cls}`}>
-                <RelIcon className="w-4 h-4 flex-shrink-0" />
-                <span className="text-sm font-semibold">Reliability: {rel.label}</span>
+                <RelIcon className="w-4 h-4 shrink-0" />
+                <span className="text-xs font-bold">Confidence Reliability: {rel.label}</span>
               </div>
 
               {/* SHAP Explanation */}
               {pred.explanation && pred.explanation.length > 0 && (
-                <div>
-                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                    <BarChart2 className="w-3.5 h-3.5" /> Why this estimate?
+                <div className="space-y-3 pt-2">
+                  <p className="text-xs font-bold text-[#938376] uppercase tracking-wider flex items-center gap-1.5">
+                    <BarChart2 className="w-3.5 h-3.5 text-orange-600" /> Factor Breakdown (SHAP Impact)
                   </p>
                   <div className="space-y-2">
                     {pred.explanation.slice(0, 5).map((exp, i) => {
@@ -126,16 +126,16 @@ export default function Checkout() {
                       const maxImpact = Math.max(...pred.explanation.map(e => Math.abs(e.impact)));
                       const pct = maxImpact > 0 ? (Math.abs(exp.impact) / maxImpact) * 100 : 0;
                       return (
-                        <div key={i}>
-                          <div className="flex justify-between text-xs text-slate-600 mb-0.5">
-                            <span className="font-medium">{exp.feature}</span>
-                            <span className={isPos ? 'text-red-500' : 'text-green-600'}>
+                        <div key={i} className="space-y-1">
+                          <div className="flex justify-between text-xs text-[#4A3C34]">
+                            <span className="font-semibold">{exp.feature}</span>
+                            <span className={`font-mono font-bold ${isPos ? 'text-amber-700' : 'text-emerald-700'}`}>
                               {isPos ? '+' : ''}{exp.impact.toFixed(1)} min
                             </span>
                           </div>
-                          <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                          <div className="h-1.5 bg-[#E5DDD0] rounded-full overflow-hidden">
                             <div
-                              className={`h-1.5 rounded-full ${isPos ? 'bg-red-400' : 'bg-green-400'}`}
+                              className={`h-1.5 rounded-full ${isPos ? 'bg-amber-500' : 'bg-emerald-600'}`}
                               style={{ width: `${pct}%` }}
                             />
                           </div>
@@ -153,15 +153,15 @@ export default function Checkout() {
         <div className="flex gap-3">
           <Link
             to="/user/orders"
-            className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors"
+            className="flex-1 flex items-center justify-center gap-2 bg-orange-600 text-white py-3.5 rounded-xl font-bold text-xs hover:bg-orange-700 transition-colors shadow-md shadow-orange-600/20"
           >
-            Track Order <ArrowRight className="w-4 h-4" />
+            Track Garma-Garam Order <ArrowRight className="w-4 h-4" />
           </Link>
           <Link
             to="/user/restaurants"
-            className="flex-1 flex items-center justify-center gap-2 bg-slate-100 text-slate-700 py-3 rounded-xl font-semibold hover:bg-slate-200 transition-colors"
+            className="flex-1 flex items-center justify-center gap-2 bg-white text-[#191411] border border-[#ECE4D8] py-3.5 rounded-xl font-bold text-xs hover:bg-[#FAF7F2] transition-colors"
           >
-            Order More
+            Order More Dishes
           </Link>
         </div>
       </div>
@@ -170,37 +170,41 @@ export default function Checkout() {
 
   /* ── Checkout Form ── */
   return (
-    <div className="max-w-4xl mx-auto p-8 flex flex-col md:flex-row gap-8">
+    <div className="max-w-4xl mx-auto p-6 sm:p-8 flex flex-col md:flex-row gap-8">
       {/* Form */}
-      <div className="flex-1 bg-white p-7 rounded-2xl shadow-sm border border-slate-100">
-        <h2 className="text-2xl font-bold mb-6 text-slate-800">Complete Your Order</h2>
+      <div className="flex-1 bg-white p-7 sm:p-8 rounded-3xl shadow-sm border border-[#ECE4D8] space-y-6">
+        <div>
+          <h2 className="font-display font-black text-2xl text-[#191411]">Complete Your Zaika Order</h2>
+          <p className="text-xs text-[#6E6157] mt-1">Confirm your delivery location and payment preference</p>
+        </div>
+
         <form onSubmit={handlePlaceOrder} className="space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Delivery Address</label>
+          <div className="space-y-1.5">
+            <label className="block text-xs font-bold text-[#191411]">Delivery Address</label>
             <div className="relative">
-              <MapPin className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
+              <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#938376]" />
               <input
                 type="text" required
                 value={address} onChange={(e) => setAddress(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 text-sm"
-                placeholder="e.g. 42 MG Road, Apt 3C, Mumbai"
+                className="w-full pl-10 pr-4 py-2.5 bg-[#FAF7F2] border border-[#ECE4D8] rounded-xl text-xs font-medium text-[#191411] focus:ring-2 focus:ring-orange-500 focus:outline-none"
+                placeholder="e.g. Flat 402, Sea Green Apts, MG Road, Mumbai"
               />
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Payment Method</label>
+          <div className="space-y-1.5">
+            <label className="block text-xs font-bold text-[#191411]">Payment Method</label>
             <div className="grid grid-cols-2 gap-3">
               {[
                 { val: 'cash', label: '💵 Cash on Delivery' },
-                { val: 'card', label: '💳 Card / UPI' },
+                { val: 'card', label: '📱 UPI / Card' },
               ].map(opt => (
                 <label
                   key={opt.val}
-                  className={`flex items-center gap-2 border rounded-xl px-4 py-3 cursor-pointer text-sm font-medium transition-colors ${
+                  className={`flex items-center gap-2 border rounded-xl px-4 py-3 cursor-pointer text-xs font-bold transition-colors ${
                     payment === opt.val
-                      ? 'border-blue-500 bg-blue-50 text-blue-700'
-                      : 'border-slate-200 text-slate-600 hover:border-slate-300'
+                      ? 'border-orange-500 bg-orange-50 text-orange-700'
+                      : 'border-[#ECE4D8] bg-[#FAF7F2] text-[#4A3C34] hover:border-stone-300'
                   }`}
                 >
                   <input
@@ -216,35 +220,35 @@ export default function Checkout() {
           </div>
 
           <div className="pt-2">
-            <p className="text-xs text-slate-400 flex items-center gap-1 mb-3">
-              <Clock className="w-3.5 h-3.5" /> ML-powered delivery estimate will be generated on order placement
+            <p className="text-[11px] text-[#938376] flex items-center gap-1 mb-3">
+              <Clock className="w-3.5 h-3.5 text-orange-600" /> ML-powered delivery interval will be generated on order placement
             </p>
             <button
               type="submit" disabled={loading}
-              className="w-full bg-blue-600 text-white font-semibold py-3 rounded-xl hover:bg-blue-700 flex items-center justify-center gap-2 transition-colors disabled:opacity-60"
+              className="w-full bg-orange-600 text-white font-bold py-3.5 rounded-xl hover:bg-orange-700 flex items-center justify-center gap-2 transition-colors disabled:opacity-60 shadow-md shadow-orange-600/25 cursor-pointer text-xs"
             >
               {loading
-                ? <><Loader2 className="animate-spin w-5 h-5" /> Placing order...</>
-                : 'Place Order'}
+                ? <><Loader2 className="animate-spin w-4 h-4" /> Placing your Zaika order...</>
+                : 'Confirm & Place Order'}
             </button>
           </div>
         </form>
       </div>
 
       {/* Summary */}
-      <div className="w-full md:w-80 bg-slate-50 p-6 rounded-2xl border border-slate-200 h-fit">
-        <h3 className="text-lg font-bold mb-4 text-slate-800">Order Summary</h3>
-        <div className="space-y-3 mb-6">
+      <div className="w-full md:w-80 bg-white p-6 rounded-3xl border border-[#ECE4D8] shadow-sm h-fit space-y-4">
+        <h3 className="font-display font-black text-lg text-[#191411]">Order Summary</h3>
+        <div className="space-y-3 pb-4 border-b border-[#ECE4D8]">
           {items.map((item, idx) => (
-            <div key={idx} className="flex justify-between text-sm">
-              <span className="text-slate-600">{item.quantity}× {item.name}</span>
-              <span className="font-medium text-slate-800">${(item.price * item.quantity).toFixed(2)}</span>
+            <div key={idx} className="flex justify-between text-xs">
+              <span className="text-[#6E6157]">{item.quantity}× {item.name}</span>
+              <span className="font-bold text-[#191411]">₹{(item.price * item.quantity).toLocaleString('en-IN')}</span>
             </div>
           ))}
         </div>
-        <div className="border-t border-slate-200 pt-4 flex justify-between font-bold text-lg">
-          <span>Total</span>
-          <span className="text-green-600">${total.toFixed(2)}</span>
+        <div className="flex justify-between items-baseline font-bold">
+          <span className="text-xs uppercase text-[#938376]">Total Amount</span>
+          <span className="font-display text-2xl font-black text-orange-600">₹{total.toLocaleString('en-IN')}</span>
         </div>
       </div>
     </div>

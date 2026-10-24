@@ -8,194 +8,182 @@ from app.database.supabase import supabase
 
 RESTAURANTS_DATA = [
     {
-        "name": "Bella Italia Trattoria",
-        "description": "Authentic wood-fired Neapolitan pizza, fresh handmade pasta, and classic Italian desserts.",
-        "address": "42 Little Italy Way, Downtown",
-        "image_url": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80",
-        "preparation_time_min": 20,
+        "name": "Punjab Grill & Rasoi",
+        "description": "Slow-simmered rich dal makhani, authentic butter chicken, Amritsari kulche, and piping hot garlic naans straight from the clay tandoor.",
+        "address": "Shop 14, Linking Road, Bandra West, Mumbai",
+        "image_url": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=800&q=80",
+        "preparation_time_min": 22,
         "menu": [
             {
-                "name": "Margherita D.O.P. Pizza",
-                "description": "San Marzano tomatoes, fresh buffalo mozzarella, fragrant basil, and extra virgin olive oil.",
-                "price": 14.99,
-                "image_url": "https://images.unsplash.com/photo-1604382355076-af4b0eb60143?auto=format&fit=crop&w=800&q=80"
+                "name": "Murgh Makhani (Butter Chicken)",
+                "description": "Succulent tandoor-smoked chicken simmered in rich velvety tomato, butter, and cashew gravy.",
+                "price": 360,
+                "image_url": "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&w=800&q=80"
             },
             {
-                "name": "Handmade Tagliatelle al Tartufo",
-                "description": "Fresh ribbon pasta tossed in creamy black truffle butter and aged Parmigiano-Reggiano.",
-                "price": 18.50,
-                "image_url": "https://images.unsplash.com/photo-1546549032-9571cd6b27df?auto=format&fit=crop&w=800&q=80"
+                "name": "Dal Makhani Rasoi Khas",
+                "description": "Slow-cooked black lentils simmered overnight for 16 hours with cream and desi white butter.",
+                "price": 280,
+                "image_url": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=800&q=80"
             },
             {
-                "name": "Crispy Calamari Fritti",
-                "description": "Golden fried calamari rings served with house marinara and lemon garlic aioli.",
-                "price": 11.00,
-                "image_url": "https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?auto=format&fit=crop&w=800&q=80"
+                "name": "Amritsari Chur Chur Kulcha",
+                "description": "Flaky layered flatbread stuffed with spiced potatoes and paneer, served with chole and imli pyaz.",
+                "price": 190,
+                "image_url": "https://images.unsplash.com/photo-1626074353765-517a681e40be?auto=format&fit=crop&w=800&q=80"
             },
             {
-                "name": "Classic Tiramisu",
-                "description": "Espresso-soaked ladyfingers, velvety mascarpone cream, and Dutch cocoa powder.",
-                "price": 7.50,
+                "name": "Garlic Butter Naan (2 pcs)",
+                "description": "Clay oven flatbread generously brushed with garlic butter and fresh coriander.",
+                "price": 70,
+                "image_url": "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=800&q=80"
+            }
+        ]
+    },
+    {
+        "name": "Hyderabadi Dastarkhwan",
+        "description": "Kachhe Gosht ki authentic Dum Biryani, double ka meetha, and royal Nizami handi specialties made with pure saffron and ghee.",
+        "address": "Plot 88, Banjara Hills Road No. 12, Hyderabad",
+        "image_url": "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=800&q=80",
+        "preparation_time_min": 25,
+        "menu": [
+            {
+                "name": "Shahi Mutton Dum Biryani",
+                "description": "Prime cuts of tender lamb slow-cooked on dum with aged long-grain basmati, saffron, and fried onions.",
+                "price": 399,
+                "image_url": "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                "name": "Hyderabadi Chicken Dum Biryani",
+                "description": "Aromatic basmati rice sealed in earthen handi with marinated country chicken and rich potli masala.",
+                "price": 299,
+                "image_url": "https://images.unsplash.com/photo-1633945274405-b6c8069047b0?auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                "name": "Chicken 65 Hyderabadi Style",
+                "description": "Crispy tempered chicken bites tossed with fresh curry leaves, crushed pepper, and green chilies.",
+                "price": 240,
+                "image_url": "https://images.unsplash.com/photo-1610057099443-fde8c4d50f91?auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                "name": "Shahi Tukda (Double Ka Meetha)",
+                "description": "Crisp ghee-fried bread triangles soaked in rich rabdi flavored with cardamom, saffron, and pistachios.",
+                "price": 140,
                 "image_url": "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?auto=format&fit=crop&w=800&q=80"
             }
         ]
     },
     {
-        "name": "Smash & Sizzle Burger Co.",
-        "description": "Gourmet smashed beef burgers, golden loaded waffle fries, and decadent thick shakes.",
-        "address": "108 Broadway Blvd, Westside",
-        "image_url": "https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=800&q=80",
+        "name": "Dakshin Tiffin House",
+        "description": "Crispy golden Mysore Masala Dosas, melt-in-the-mouth Thatte Idlis, fragrant filter kaapi, and fresh coconut chutneys.",
+        "address": "45 100 Feet Road, Indiranagar, Bengaluru",
+        "image_url": "https://images.unsplash.com/photo-1610192244261-3f33de3f55e4?auto=format&fit=crop&w=800&q=80",
         "preparation_time_min": 15,
         "menu": [
             {
-                "name": "The Double Smashed Truffle Burger",
-                "description": "Two crispy smashed Angus beef patties, Swiss cheese, caramelized onions, and truffle aioli on a toasted brioche.",
-                "price": 13.99,
-                "image_url": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80"
+                "name": "Mysore Ghee Roast Dosa",
+                "description": "Golden crispy fermented crepe smeared with spicy red chili-garlic chutney and pure desi ghee.",
+                "price": 160,
+                "image_url": "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=800&q=80"
             },
             {
-                "name": "Spicy Nashville Hot Chicken Sandwich",
-                "description": "Buttermilk-brined fried chicken breast tossed in cayenne oil, house slaw, and pickles.",
-                "price": 12.50,
-                "image_url": "https://images.unsplash.com/photo-1625813506062-0aeb1d7a094b?auto=format&fit=crop&w=800&q=80"
+                "name": "Podi Thatte Idli (2 Pcs)",
+                "description": "Large pillowy soft steamed rice cakes smothered in fiery gun powder podi and hot melted ghee.",
+                "price": 120,
+                "image_url": "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=800&q=80"
             },
             {
-                "name": "Cheddar & Bacon Loaded Fries",
-                "description": "Crispy skin-on fries smothered in melted aged cheddar, smoked bacon bits, and scallions.",
-                "price": 6.99,
-                "image_url": "https://images.unsplash.com/photo-1585109649139-366815a0d713?auto=format&fit=crop&w=800&q=80"
-            },
-            {
-                "name": "Salted Caramel Shake",
-                "description": "Creamy hand-spun vanilla bean ice cream blended with sea salt caramel and crushed pretzels.",
-                "price": 5.99,
-                "image_url": "https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=800&q=80"
-            }
-        ]
-    },
-    {
-        "name": "Sakura Japanese Ramen & Sushi",
-        "description": "Rich 16-hour tonkotsu broth ramen, fresh nigiri, and artistic specialty maki rolls.",
-        "address": "77 Sakura Ave, Midtown",
-        "image_url": "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=800&q=80",
-        "preparation_time_min": 25,
-        "menu": [
-            {
-                "name": "Signature Black Garlic Tonkotsu Ramen",
-                "description": "Rich pork bone broth, tender chashu pork belly, ajitsuke tamago, wood ear mushrooms, and fragrant black garlic oil.",
-                "price": 16.50,
-                "image_url": "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=800&q=80"
-            },
-            {
-                "name": "Spicy Salmon Dragon Roll",
-                "description": "Fresh spicy Scottish salmon, cucumber, topped with avocado slices, unagi glaze, and tobiko.",
-                "price": 14.99,
-                "image_url": "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=800&q=80"
-            },
-            {
-                "name": "Pan-Seared Pork Gyoza",
-                "description": "Six crispy handmade dumplings stuffed with minced pork, ginger, cabbage, and soy scallion dip.",
-                "price": 7.99,
-                "image_url": "https://images.unsplash.com/photo-1496116218417-1a781b1c416c?auto=format&fit=crop&w=800&q=80"
-            },
-            {
-                "name": "Matcha Green Tea Crepe Cake",
-                "description": "Delicate layers of handmade crepes and Japanese Uji matcha cream.",
-                "price": 6.50,
-                "image_url": "https://images.unsplash.com/photo-1536256263959-770b48d82b0a?auto=format&fit=crop&w=800&q=80"
-            }
-        ]
-    },
-    {
-        "name": "Tacos El Fuego",
-        "description": "Vibrant street-style tacos, flame-grilled carne asada, fresh guacamole, and ice-cold jarritos.",
-        "address": "210 Mission St, Southside",
-        "image_url": "https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&w=800&q=80",
-        "preparation_time_min": 15,
-        "menu": [
-            {
-                "name": "Birria Tacos with Consomé (Trio)",
-                "description": "Slow-braised beef chuck folded in corn tortillas with Oaxaca cheese, cilantro, and savory dipping consomé.",
-                "price": 13.50,
-                "image_url": "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=800&q=80"
-            },
-            {
-                "name": "Al Pastor Taco Platter",
-                "description": "Marinated spit-roasted pork with roasted pineapple, chopped onion, cilantro, and salsa verde.",
-                "price": 12.00,
-                "image_url": "https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&w=800&q=80"
-            },
-            {
-                "name": "Fresh Table-Side Guacamole & Chips",
-                "description": "Hass avocados mashed with lime, jalapeño, tomato, red onion, and warm stone-ground tortilla chips.",
-                "price": 8.50,
-                "image_url": "https://images.unsplash.com/photo-1541256942802-7b299b48368f?auto=format&fit=crop&w=800&q=80"
-            },
-            {
-                "name": "Cinnamon Sugar Churros with Dulce de Leche",
-                "description": "Freshly fried Mexican churros dusted in canela sugar served with warm caramel dip.",
-                "price": 5.99,
-                "image_url": "https://images.unsplash.com/photo-1624300629298-e9de39c13be5?auto=format&fit=crop&w=800&q=80"
-            }
-        ]
-    },
-    {
-        "name": "Spice Route Indian Kitchen",
-        "description": "Rich aromatic curries, clay-oven tandoori specialties, and freshly baked buttery garlic naan.",
-        "address": "315 Heritage Rd, Uptown",
-        "image_url": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=800&q=80",
-        "preparation_time_min": 25,
-        "menu": [
-            {
-                "name": "Murgh Makhani (Butter Chicken)",
-                "description": "Tender chicken tikka simmered in a silky tomato, cashew, and fenugreek butter sauce.",
-                "price": 15.99,
-                "image_url": "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&w=800&q=80"
-            },
-            {
-                "name": "Paneer Tikka Masala",
-                "description": "Char-grilled cottage cheese cubes cooked in a rich, spiced bell pepper and onion gravy.",
-                "price": 14.50,
-                "image_url": "https://images.unsplash.com/photo-1567184109191-37764e7fadd9?auto=format&fit=crop&w=800&q=80"
-            },
-            {
-                "name": "Garlic & Herb Butter Naan",
-                "description": "Fresh leavened flatbread baked in the tandoor, brushed with garlic butter and fresh coriander.",
-                "price": 3.99,
-                "image_url": "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=800&q=80"
-            },
-            {
-                "name": "Royal Lamb Dum Biryani",
-                "description": "Fragrant basmati rice layered with spiced marinated lamb, saffron, caramelized onions, and mint raita.",
-                "price": 17.99,
-                "image_url": "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=800&q=80"
-            }
-        ]
-    },
-    {
-        "name": "Green Garden Health & Bowls",
-        "description": "Nourishing grain bowls, crisp organic salads, fresh cold-pressed juices, and gluten-free treats.",
-        "address": "15 Eco Park Walk, Green District",
-        "image_url": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80",
-        "preparation_time_min": 12,
-        "menu": [
-            {
-                "name": "Mediterranean Quinoa Bowl",
-                "description": "Organic tri-color quinoa, roasted chickpeas, cherry tomatoes, kalamata olives, cucumber, feta, and tahini lemon dressing.",
-                "price": 12.99,
+                "name": "Medu Vada Sambhar Combo",
+                "description": "Crispy outside, fluffy inside black gram fritters served with hot drumstick sambhar and coconut chutney.",
+                "price": 90,
                 "image_url": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80"
             },
             {
-                "name": "Wild Salmon Poke Bowl",
-                "description": "Fresh diced Atlantic salmon, sushi rice, edamame, sliced avocado, pickled ginger, seaweed salad, and ponzu drizzle.",
-                "price": 16.50,
-                "image_url": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80"
+                "name": "Madras Degree Filter Kaapi",
+                "description": "Frothy, strong chicory-blended south Indian coffee brewed in traditional brass filters.",
+                "price": 50,
+                "image_url": "https://images.unsplash.com/photo-1517256064527-09c73fc73e38?auto=format&fit=crop&w=800&q=80"
+            }
+        ]
+    },
+    {
+        "name": "Chowpatty Street Chaat Co.",
+        "description": "Iconic Mumbai street flavors, butter-toasted ladi pav with spicy bhaji, crisp puris, tangy tamarind chutney, and roasted sev.",
+        "address": "Near Juhu Beach Promenade, Vile Parle, Mumbai",
+        "image_url": "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=800&q=80",
+        "preparation_time_min": 14,
+        "menu": [
+            {
+                "name": "Special Amul Butter Pav Bhaji",
+                "description": "Mashed spiced vegetable bhaji simmered with generous Amul butter, served with 2 hot butter-toasted pavs.",
+                "price": 160,
+                "image_url": "https://images.unsplash.com/photo-1606491956689-2ea866880c84?auto=format&fit=crop&w=800&q=80"
             },
             {
-                "name": "Green Glow Cold-Pressed Juice",
-                "description": "Organic celery, green apple, cucumber, kale, lemon, and fresh ginger.",
-                "price": 6.50,
-                "image_url": "https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&w=800&q=80"
+                "name": "Dahi Papdi Chaat",
+                "description": "Crisp flour crisps loaded with boiled potatoes, chilled sweet curd, tangy saunth, and crunchy sev.",
+                "price": 110,
+                "image_url": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                "name": "Kolkata Puchka / Pani Puri (8 pcs)",
+                "description": "Semolina hollow puris filled with spicy kala chana potato filling and spiked pudina teekha pani.",
+                "price": 80,
+                "image_url": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80"
+            }
+        ]
+    },
+    {
+        "name": "Dilli 6 Kebabs & Tandoor",
+        "description": "Purani Dilli's legendary charcoal grilled galouti kebabs, succulent bhatti chicken, and smoky paneer tikkas.",
+        "address": "Chandni Chowk Road, Old Delhi, Delhi",
+        "image_url": "https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?auto=format&fit=crop&w=800&q=80",
+        "preparation_time_min": 24,
+        "menu": [
+            {
+                "name": "Melt-in-Mouth Galouti Kebabs (4 pcs)",
+                "description": "Finely minced smoked lamb patties prepared with 32 secret spices, served on mini ulte tawe ke parathe.",
+                "price": 320,
+                "image_url": "https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                "name": "Tandoori Bhatti Murgh (Half)",
+                "description": "Whole spring chicken marinated in roasted mustard oil and Kashmiri degi mirch, charred over charcoal.",
+                "price": 420,
+                "image_url": "https://images.unsplash.com/photo-1626074353765-517a681e40be?auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                "name": "Bhatti Paneer Tikka Shashlik",
+                "description": "Chunky cottage cheese cubes and bell peppers cured in ajwain hung curd, skewered over coal coals.",
+                "price": 260,
+                "image_url": "https://images.unsplash.com/photo-1567184109191-37764e7fadd9?auto=format&fit=crop&w=800&q=80"
+            }
+        ]
+    },
+    {
+        "name": "Bikaneri Sweets & Snacks",
+        "description": "Heritage Rajasthani mithai, piping hot jalebis with thick rabdi, kesar rasmalai, and crunchy pyaaz kachoris.",
+        "address": "Station Road, Sadar Bazar, Jaipur",
+        "image_url": "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?auto=format&fit=crop&w=800&q=80",
+        "preparation_time_min": 10,
+        "menu": [
+            {
+                "name": "Garam Jalebi with Shahi Rabdi (250g)",
+                "description": "Crispy golden spirals soaked in saffron syrup, served alongside chilled malai rabdi.",
+                "price": 150,
+                "image_url": "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                "name": "Kesar Rasmalai (2 pcs)",
+                "description": "Soft cottage cheese dumplings soaked in condensed saffron milk garnished with slivered pistachios.",
+                "price": 120,
+                "image_url": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                "name": "Jodhpur Pyaaz Kachori (2 pcs)",
+                "description": "Crisp flaky fried pastry filled with spiced onion and hing filling, served with saunth and teekha chutney.",
+                "price": 70,
+                "image_url": "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=800&q=80"
             }
         ]
     }

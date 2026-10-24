@@ -1,7 +1,7 @@
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../utils/supabase';
-import { LayoutDashboard, Users, FileText, PieChart, Database, LogOut, Store, ShoppingBag } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, PieChart, Database, LogOut, Store, ShoppingBag, Flame, Activity } from 'lucide-react';
 
 const AdminLayout = () => {
   const { profile } = useAuth();
@@ -14,24 +14,34 @@ const AdminLayout = () => {
   };
 
   const navItems = [
-    { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
-    { name: 'Users', path: '/admin/users', icon: Users },
-    { name: 'Restaurants', path: '/admin/restaurants', icon: Store },
-    { name: 'Orders', path: '/admin/orders', icon: ShoppingBag },
-    { name: 'Prediction History', path: '/admin/predictions', icon: FileText },
-    { name: 'Analytics & OLAP', path: '/admin/analytics', icon: PieChart },
-    { name: 'Model Info', path: '/admin/model', icon: Database },
+    { name: 'Fleet Overview', path: '/admin/dashboard', icon: LayoutDashboard },
+    { name: 'Users & Roles', path: '/admin/users', icon: Users },
+    { name: 'Kitchen Partners', path: '/admin/restaurants', icon: Store },
+    { name: 'Live Orders', path: '/admin/orders', icon: ShoppingBag },
+    { name: 'Prediction Logs', path: '/admin/predictions', icon: FileText },
+    { name: 'OLAP Analytics', path: '/admin/analytics', icon: PieChart },
+    { name: 'ML Model Telemetry', path: '/admin/model', icon: Database },
   ];
 
   return (
-    <div className="flex h-screen bg-slate-50">
-      {/* Sidebar */}
-      <div className="w-64 bg-slate-900 flex flex-col text-white">
-        <div className="h-16 flex items-center px-6 border-b border-slate-800">
-          <span className="text-xl font-bold text-white">Admin Panel</span>
+    <div className="flex h-screen bg-[#FAF7F2] text-[#191411]">
+      {/* Dark Espresso Fleet Sidebar */}
+      <div className="w-64 bg-[#191411] flex flex-col text-white border-r border-stone-800 shadow-md">
+        <div className="h-20 flex items-center px-6 border-b border-stone-800">
+          <Link to="/" className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-orange-600 flex items-center justify-center text-white shadow-md shadow-orange-600/30">
+              <Flame className="w-5 h-5" />
+            </div>
+            <div>
+              <span className="font-display font-black text-xl tracking-tight text-white">
+                Zaika<span className="text-orange-500">Pulse</span>
+              </span>
+              <p className="text-[10px] text-orange-400 font-extrabold uppercase tracking-wider">Fleet Master</p>
+            </div>
+          </Link>
         </div>
         
-        <div className="flex-1 py-6 flex flex-col gap-2 px-4">
+        <div className="flex-1 py-6 flex flex-col gap-1.5 px-3">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
@@ -39,47 +49,55 @@ const AdminLayout = () => {
               <Link
                 key={item.name}
                 to={item.path}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
                   isActive 
-                    ? 'bg-blue-600 text-white font-medium' 
-                    : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                    ? 'bg-orange-600 text-white font-bold shadow-md shadow-orange-600/25' 
+                    : 'text-stone-400 hover:bg-stone-800/60 hover:text-white'
                 }`}
               >
-                <Icon size={20} className={isActive ? 'text-white' : 'text-slate-400'} />
+                <Icon size={18} className={isActive ? 'text-white' : 'text-stone-400'} />
                 {item.name}
               </Link>
-            )
+            );
           })}
         </div>
 
-        <div className="p-4 border-t border-slate-800">
-          <div className="flex items-center gap-3 mb-4 px-2">
-            <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">
+        <div className="p-4 border-t border-stone-800 bg-stone-900/50">
+          <div className="flex items-center gap-3 mb-3 px-1">
+            <div className="w-10 h-10 rounded-full bg-orange-600/30 border border-orange-500/50 flex items-center justify-center text-orange-400 font-bold text-sm">
               {profile?.full_name?.charAt(0) || 'A'}
             </div>
             <div className="overflow-hidden">
-              <p className="text-sm font-medium text-white truncate">{profile?.full_name}</p>
-              <p className="text-xs text-slate-400 truncate">Administrator</p>
+              <p className="text-sm font-bold text-white truncate">{profile?.full_name || 'Fleet Administrator'}</p>
+              <p className="text-[11px] text-stone-400 truncate">System Operator</p>
             </div>
           </div>
           <button 
             onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm text-red-400 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-bold text-red-400 bg-stone-800/80 hover:bg-stone-800 rounded-xl transition-colors cursor-pointer"
           >
-            <LogOut size={16} />
-            Logout
+            <LogOut size={14} />
+            Sign Out
           </button>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto bg-slate-50">
-        <header className="h-16 bg-white border-b border-slate-200 flex items-center px-8 shadow-sm">
-          <h1 className="text-xl font-semibold text-slate-800 capitalize">
-            {location.pathname.split('/').pop()}
-          </h1>
+      <div className="flex-1 overflow-auto bg-[#FAF7F2] flex flex-col">
+        <header className="h-20 bg-white/80 backdrop-blur-md border-b border-[#ECE4D8] flex items-center justify-between px-8 sticky top-0 z-30">
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-orange-600">Platform Control</span>
+            <h1 className="text-xl font-display font-extrabold text-[#191411] capitalize">
+              {location.pathname.split('/').pop().replace('-', ' ')}
+            </h1>
+          </div>
+          <div className="flex items-center gap-2 text-xs font-mono bg-stone-900 text-stone-300 px-3 py-1.5 rounded-lg border border-stone-800">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span>ML Node: Online (Port 8000)</span>
+          </div>
         </header>
-        <main className="p-8">
+
+        <main className="p-8 flex-1">
           <Outlet />
         </main>
       </div>

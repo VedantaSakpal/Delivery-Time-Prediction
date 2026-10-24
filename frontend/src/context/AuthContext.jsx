@@ -14,7 +14,7 @@ export const AuthProvider = ({ children }) => {
       const { data: { session } } = await supabase.auth.getSession();
       setUser(session?.user ?? null);
       if (session?.user) {
-        await fetchProfile(session.user.id);
+        await fetchProfile(session.user);
       }
       setLoading(false);
     };
@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }) => {
       async (_event, session) => {
         setUser(session?.user ?? null);
         if (session?.user) {
-          await fetchProfile(session.user.id);
+          await fetchProfile(session.user);
         } else {
           setProfile(null);
         }
@@ -39,15 +39,34 @@ export const AuthProvider = ({ children }) => {
     };
   }, []);
 
-  const fetchProfile = async (userId) => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-    
-    if (data) {
-      setProfile(data);
+  const fetchProfile = async (userObj) => {
+    if (!userObj?.id) return;
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userObj.id)
+        .maybeSingle();
+      
+      if (data) {
+        setProfile(data);
+      } else {
+        // Fallback: create profile if missing
+        const fallbackProfile = {
+          id: userObj.id,
+          email: userObj.email,
+          full_name: userObj.user_metadata?.full_name || userObj.email?.split('@')[0] || 'Diner',
+          role: 'user'
+        };
+        const { data: inserted } = await supabase
+          .from('profiles')
+          .insert(fallbackProfile)
+          .select()
+          .maybeSingle();
+        setProfile(inserted || fallbackProfile);
+      }
+    } catch (err) {
+      console.warn("Could not fetch profile:", err);
     }
   };
 

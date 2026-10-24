@@ -215,7 +215,7 @@ export default function Analytics() {
                 <div>
                   <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Avg Order Value</p>
                   <h3 className="text-2xl font-extrabold text-indigo-600 mt-1">
-                    ${(ordersOlap?.kpis?.avg_order_value || 0).toFixed(2)}
+                    ₹{(ordersOlap?.kpis?.avg_order_value || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                   </h3>
                   <span className="text-xs font-medium text-slate-400 mt-1 block">Mean basket size</span>
                 </div>
@@ -300,7 +300,7 @@ export default function Analytics() {
                     <XAxis dataKey="period" tick={{ fontSize: 11 }} />
                     <YAxis tick={{ fontSize: 11 }} />
                     <Tooltip
-                      formatter={(val) => [`$${Number(val).toFixed(2)}`, 'Total Revenue']}
+                      formatter={(val) => [`₹${Number(val).toLocaleString('en-IN')}`, 'Total Revenue']}
                       contentStyle={{ backgroundColor: '#1e293b', color: '#fff', borderRadius: '8px' }}
                     />
                     <Area
@@ -366,10 +366,10 @@ export default function Analytics() {
                             </span>
                           </td>
                           <td className="py-3 px-6 text-right font-bold text-emerald-600">
-                            ${Number(row.total_revenue).toFixed(2)}
+                            ₹{Number(row.total_revenue).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                           </td>
                           <td className="py-3 px-6 text-right font-medium text-slate-700">
-                            ${Number(row.avg_order_value).toFixed(2)}
+                            ₹{Number(row.avg_order_value).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                           </td>
                           <td className="py-3 px-6 text-right">
                             <div className="flex items-center justify-end gap-2">

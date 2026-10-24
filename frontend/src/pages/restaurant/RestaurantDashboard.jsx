@@ -220,7 +220,7 @@ function OrderCard({ order, updateOrderStatus }) {
           <span className={`text-xs font-bold px-2.5 py-1 rounded-full border capitalize ${statusClass}`}>
             {order.status.replace('_', ' ')}
           </span>
-          <span className="font-bold text-green-600 text-sm">${Number(order.total_amount).toFixed(2)}</span>
+          <span className="font-bold text-orange-600 text-sm">₹{Number(order.total_amount).toLocaleString('en-IN')}</span>
         </div>
       </div>
 
@@ -302,7 +302,7 @@ function AnalyticsPanel({ analytics }) {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
           { label: 'Total Orders',  value: analytics.total_orders,            icon: ShoppingBag,  color: 'bg-blue-50 text-blue-600'    },
-          { label: 'Total Revenue', value: `$${analytics.total_revenue}`,      icon: DollarSign,   color: 'bg-green-50 text-green-600'  },
+          { label: 'Total Revenue', value: `₹${Number(analytics.total_revenue || 0).toLocaleString('en-IN')}`, icon: DollarSign, color: 'bg-green-50 text-green-600' },
           { label: 'This Month',    value: analytics.orders_by_month?.slice(-1)[0]?.order_count ?? 0, icon: TrendingUp, color: 'bg-orange-50 text-orange-600' },
           { label: 'Menu Items',    value: analytics.top_items?.length ?? 0,   icon: Package,      color: 'bg-violet-50 text-violet-600' },
         ].map(kpi => {
@@ -342,8 +342,8 @@ function AnalyticsPanel({ analytics }) {
               <CartesianGrid strokeDasharray="3 3" vertical={false} />
               <XAxis dataKey="month" tick={{ fontSize: 11 }} />
               <YAxis />
-              <Tooltip formatter={(v) => [`$${v}`, 'Revenue']} />
-              <Line type="monotone" dataKey="revenue" name="Revenue ($)" stroke="#22c55e" strokeWidth={2.5} dot={{ r: 4 }} />
+              <Tooltip formatter={(v) => [`₹${v}`, 'Revenue']} />
+              <Line type="monotone" dataKey="revenue" name="Revenue (₹)" stroke="#22c55e" strokeWidth={2.5} dot={{ r: 4 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -385,7 +385,7 @@ function AnalyticsPanel({ analytics }) {
                   <div className="flex-1">
                     <div className="flex justify-between text-sm font-medium text-slate-700 mb-1">
                       <span>{item.name}</span>
-                      <span className="text-slate-400">{item.total_qty} sold · ${item.total_revenue}</span>
+                      <span className="text-slate-400">{item.total_qty} sold · ₹{item.total_revenue}</span>
                     </div>
                     <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                       <div

@@ -17,12 +17,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(predictions.router, prefix="/api/predictions", tags=["Predictions"])
-app.include_router(admin.router, prefix="/api/admin", tags=["Admin"])
-app.include_router(analytics.router, prefix="/api/analytics", tags=["Analytics"])
-app.include_router(olap.router, prefix="/api/olap", tags=["OLAP"])
-app.include_router(restaurants.router, prefix="/api/restaurants", tags=["Restaurants"])
-app.include_router(orders.router, prefix="/api/orders", tags=["Orders"])
+for prefix in ["/api", ""]:
+    app.include_router(predictions.router, prefix=f"{prefix}/predictions", tags=["Predictions"], include_in_schema=(prefix == "/api"))
+    app.include_router(admin.router, prefix=f"{prefix}/admin", tags=["Admin"], include_in_schema=(prefix == "/api"))
+    app.include_router(analytics.router, prefix=f"{prefix}/analytics", tags=["Analytics"], include_in_schema=(prefix == "/api"))
+    app.include_router(olap.router, prefix=f"{prefix}/olap", tags=["OLAP"], include_in_schema=(prefix == "/api"))
+    app.include_router(restaurants.router, prefix=f"{prefix}/restaurants", tags=["Restaurants"], include_in_schema=(prefix == "/api"))
+    app.include_router(orders.router, prefix=f"{prefix}/orders", tags=["Orders"], include_in_schema=(prefix == "/api"))
 
 @app.get("/")
 def read_root():

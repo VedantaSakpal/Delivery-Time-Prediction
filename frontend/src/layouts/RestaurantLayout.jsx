@@ -1,6 +1,6 @@
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../utils/supabase';
-import { Store, LogOut, LayoutDashboard } from 'lucide-react';
+import { Store, LogOut, LayoutDashboard, Flame, ChefHat, Sparkles } from 'lucide-react';
 
 export default function RestaurantLayout() {
   const navigate = useNavigate();
@@ -12,18 +12,29 @@ export default function RestaurantLayout() {
   };
 
   const navItems = [
-    { name: 'Dashboard', path: '/restaurant/dashboard', icon: LayoutDashboard }
+    { name: 'Kitchen Dashboard', path: '/restaurant/dashboard', icon: LayoutDashboard }
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
-      <aside className="w-64 bg-slate-900 text-white flex flex-col">
-        <div className="p-4 flex items-center gap-3 font-semibold text-lg border-b border-slate-800">
-          <Store className="w-6 h-6 text-orange-400" />
-          Restaurant Portal
+    <div className="min-h-screen bg-[#FAF7F2] text-[#191411] flex">
+      {/* Merchant Sidebar */}
+      <aside className="w-64 bg-amber-950 text-white flex flex-col border-r border-amber-900 shadow-md">
+        <div className="h-20 flex items-center px-6 border-b border-amber-900">
+          <Link to="/" className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-amber-600 flex items-center justify-center text-white shadow-sm shadow-amber-600/30">
+              <ChefHat className="w-5 h-5" />
+            </div>
+            <div>
+              <span className="font-display font-black text-xl tracking-tight text-white">
+                Zaika<span className="text-amber-400">Pulse</span>
+              </span>
+              <p className="text-[10px] text-amber-300 font-extrabold uppercase tracking-wider">Kitchen Partner</p>
+            </div>
+          </Link>
         </div>
-        <nav className="flex-1 py-4">
-          <ul className="space-y-1 px-2">
+
+        <nav className="flex-1 py-6 px-3">
+          <ul className="space-y-1.5">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -31,9 +42,13 @@ export default function RestaurantLayout() {
                 <li key={item.path}>
                   <Link
                     to={item.path}
-                    className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${isActive ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
+                      isActive 
+                        ? 'bg-amber-600 text-white font-bold shadow-md shadow-amber-600/25' 
+                        : 'text-amber-200/70 hover:bg-amber-900/60 hover:text-white'
+                    }`}
                   >
-                    <Icon className="w-5 h-5" />
+                    <Icon className="w-4 h-4" />
                     {item.name}
                   </Link>
                 </li>
@@ -41,17 +56,20 @@ export default function RestaurantLayout() {
             })}
           </ul>
         </nav>
-        <div className="p-4 border-t border-slate-800">
+
+        <div className="p-4 border-t border-amber-900 bg-amber-900/40">
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 text-slate-400 hover:text-white w-full px-3 py-2 rounded-lg hover:bg-slate-800 transition-colors"
+            className="flex items-center justify-center gap-2 text-xs font-bold text-red-300 hover:text-white w-full px-3 py-2 rounded-xl bg-amber-900/70 hover:bg-red-950 transition-colors cursor-pointer"
           >
-            <LogOut className="w-5 h-5" />
-            Logout
+            <LogOut className="w-4 h-4" />
+            Sign Out
           </button>
         </div>
       </aside>
-      <main className="flex-1 overflow-auto">
+
+      {/* Main Content Area */}
+      <main className="flex-1 overflow-auto bg-[#FAF7F2]">
         <Outlet />
       </main>
     </div>

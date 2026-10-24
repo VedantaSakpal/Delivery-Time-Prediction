@@ -114,10 +114,10 @@ def predict_delivery_time(features: dict) -> dict:
         pass
         
     return {
-        "predicted_delivery_time_min": round(predicted_time, 2),
+        "predicted_delivery_time_min": round(float(predicted_time), 2),
         "prediction_range": {
-            "lower": round(lower_bound, 1),
-            "upper": round(upper_bound, 1)
+            "lower": round(float(lower_bound), 1),
+            "upper": round(float(upper_bound), 1)
         },
         "reliability": reliability,
         "prediction_category": category,
