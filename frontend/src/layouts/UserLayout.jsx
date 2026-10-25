@@ -2,6 +2,8 @@ import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../utils/supabase';
 import { LayoutDashboard, Clock, History, User, LogOut, Store, ShoppingBag, Flame, Sparkles } from 'lucide-react';
+import NotificationBell from '../components/NotificationBell';
+
 
 const UserLayout = () => {
   const { profile } = useAuth();
@@ -105,10 +107,13 @@ const UserLayout = () => {
           </div>
 
           <div className="flex items-center gap-3">
+            <NotificationBell role="user" />
+
             <Link
               to="/user/predict"
               className="px-3.5 py-1.5 bg-orange-100 hover:bg-orange-200 text-orange-800 text-xs font-extrabold rounded-lg transition-colors flex items-center gap-1.5"
             >
+
               <Sparkles className="w-3.5 h-3.5 text-orange-600" />
               Instant ETA Estimator
             </Link>

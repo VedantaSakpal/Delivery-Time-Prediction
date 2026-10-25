@@ -311,6 +311,22 @@ def approve_partner_application(app_id: str, current_admin: dict = Depends(get_c
         from app.database.partner_applications import approve_application
         admin_email = current_admin.get("email", "admin@zaikapulse.com")
         updated_app = approve_application(app_id, admin_email)
+
+        # Notify applicant
+        try:
+            from app.database.notifications import create_notification
+            if updated_app.get("user_id"):
+                create_notification(
+                    recipient_id=updated_app["user_id"],
+                    role="restaurant",
+                    title="Partner Application Approved! 🎉",
+                    message=f"Congratulations! {updated_app.get('restaurant_name')} has been approved. Your Kitchen Console is now live!",
+                    notif_type="partner_approved",
+                    data={"restaurant_id": updated_app.get("restaurant_id")}
+                )
+        except Exception as n_err:
+            print("Notice: partner approval notification error:", n_err)
+
         return {
             "success": True,
             "message": f"Successfully approved {updated_app.get('restaurant_name')}! Kitchen partner onboarded and starter menu generated.",
@@ -331,6 +347,22 @@ def reject_partner_application(
         from app.database.partner_applications import reject_application
         admin_email = current_admin.get("email", "admin@zaikapulse.com")
         updated_app = reject_application(app_id, req.reason, admin_email)
+
+        # Notify applicant
+        try:
+            from app.database.notifications import create_notification
+            if updated_app.get("user_id"):
+                create_notification(
+                    recipient_id=updated_app["user_id"],
+                    role="restaurant",
+                    title="Application Status: Revision Needed ⚠️",
+                    message=f"Your application for {updated_app.get('restaurant_name')} was not approved: {req.reason}",
+                    notif_type="partner_rejected",
+                    data={"app_id": app_id, "reason": req.reason}
+                )
+        except Exception as n_err:
+            print("Notice: partner rejection notification error:", n_err)
+
         return {
             "success": True,
             "message": f"Application for {updated_app.get('restaurant_name')} has been rejected.",
@@ -338,4 +370,5 @@ def reject_partner_application(
         }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
 

@@ -2,6 +2,8 @@ import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../utils/supabase';
 import { LayoutDashboard, Users, FileText, PieChart, Database, LogOut, Store, ShoppingBag, Flame, Activity, Layers, Cpu } from 'lucide-react';
+import NotificationBell from '../components/NotificationBell';
+
 
 const AdminLayout = () => {
   const { profile } = useAuth();
@@ -93,11 +95,16 @@ const AdminLayout = () => {
               {location.pathname.split('/').pop().replace('-', ' ')}
             </h1>
           </div>
-          <div className="flex items-center gap-2 text-xs font-mono bg-stone-900 text-stone-300 px-3 py-1.5 rounded-lg border border-stone-800">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>ML Node: Online (Port 8000)</span>
+          <div className="flex items-center gap-3">
+            <NotificationBell role="admin" />
+
+            <div className="flex items-center gap-2 text-xs font-mono bg-stone-900 text-stone-300 px-3 py-1.5 rounded-lg border border-stone-800">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>ML Node: Online (Port 8000)</span>
+            </div>
           </div>
         </header>
+
 
         <main className="p-8 flex-1">
           <Outlet />

@@ -154,11 +154,27 @@ def apply_for_partnership(req: PartnerApplicationRequest):
         "image_url": req.image_url or "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80",
     }
     new_app = create_application(app_payload)
+
+    # Notify Admin of new partner application
+    try:
+        from app.database.notifications import create_notification
+        create_notification(
+            recipient_id="admin",
+            role="admin",
+            title="New Partner Application 📋",
+            message=f"{req.restaurant_name} ({req.cuisine_type}) submitted an onboarding application.",
+            notif_type="partner_application",
+            data={"app_id": new_app["id"], "restaurant_name": req.restaurant_name, "owner_name": req.owner_name}
+        )
+    except Exception as n_err:
+        print("Notice: admin partner application notification error:", n_err)
+
     return {
         "success": True,
         "message": "Application submitted successfully! Your culinary and FSSAI credentials will be verified by the Zaika Admin team within 24-48 hours.",
         "application": new_app
     }
+
 
 @router.get("/application-status")
 def check_application_status(email: Optional[str] = None):

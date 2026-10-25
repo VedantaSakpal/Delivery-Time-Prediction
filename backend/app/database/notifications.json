@@ -1,0 +1,65 @@
+{
+  "240bc482-ecd3-4437-88e9-3699399ab3c7": {
+    "id": "240bc482-ecd3-4437-88e9-3699399ab3c7",
+    "recipient_id": "cc276a1d-71eb-459a-b859-f44373dd45e7",
+    "role": "admin",
+    "title": "Welcome to ZaikaPulse Live Alerts \ud83d\udd14",
+    "message": "Real-time order dispatch notifications, kitchen prep cues, and ETA tracking are now active on your account.",
+    "type": "system",
+    "data": {},
+    "is_read": false,
+    "created_at": "2026-10-25T11:07:00.594745+00:00"
+  },
+  "6ca11da0-4bb1-47ac-86d4-0d828c8511b2": {
+    "id": "6ca11da0-4bb1-47ac-86d4-0d828c8511b2",
+    "recipient_id": "84737edd-c3a7-42c2-bdf3-e9df699116ba",
+    "role": "user",
+    "title": "Welcome to ZaikaPulse Live Alerts \ud83d\udd14",
+    "message": "Real-time order dispatch notifications, kitchen prep cues, and ETA tracking are now active on your account.",
+    "type": "system",
+    "data": {},
+    "is_read": true,
+    "created_at": "2026-10-25T11:07:00.602998+00:00"
+  },
+  "8d310809-99cf-49a0-8946-bf7a7000e330": {
+    "id": "8d310809-99cf-49a0-8946-bf7a7000e330",
+    "recipient_id": "c22e3d46-5114-4b16-8d16-981b0920a4a0",
+    "role": "restaurant",
+    "title": "Welcome to ZaikaPulse Live Alerts \ud83d\udd14",
+    "message": "Real-time order dispatch notifications, kitchen prep cues, and ETA tracking are now active on your account.",
+    "type": "system",
+    "data": {},
+    "is_read": false,
+    "created_at": "2026-10-25T11:07:00.608998+00:00"
+  },
+  "d8c5057f-f823-48ba-80f1-7d8df3474acd": {
+    "id": "d8c5057f-f823-48ba-80f1-7d8df3474acd",
+    "recipient_id": "84737edd-c3a7-42c2-bdf3-e9df699116ba",
+    "role": "user",
+    "title": "\u2705 Order Delivered! Bon App\u00e9tit",
+    "message": "Your order #12d5849e from Spice Route Indian Kitchen has arrived. Enjoy your meal!",
+    "type": "status_update",
+    "data": {
+      "order_id": "12d5849e-0cc1-4868-8d45-9188bf317192",
+      "status": "delivered",
+      "restaurant_name": "Spice Route Indian Kitchen"
+    },
+    "is_read": false,
+    "created_at": "2026-10-25T11:08:10.534208+00:00"
+  },
+  "ccb40fb5-ec23-4a34-b7b3-9048153b88cf": {
+    "id": "ccb40fb5-ec23-4a34-b7b3-9048153b88cf",
+    "recipient_id": "84737edd-c3a7-42c2-bdf3-e9df699116ba",
+    "role": "user",
+    "title": "\u2705 Order Delivered! Bon App\u00e9tit",
+    "message": "Your order #8eae7505 from Spice Route Indian Kitchen has arrived. Enjoy your meal!",
+    "type": "status_update",
+    "data": {
+      "order_id": "8eae7505-ff76-4c80-be4b-32ee5eff8c3b",
+      "status": "delivered",
+      "restaurant_name": "Spice Route Indian Kitchen"
+    },
+    "is_read": false,
+    "created_at": "2026-10-25T11:08:14.829876+00:00"
+  }
+}

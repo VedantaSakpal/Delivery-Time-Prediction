@@ -1,6 +1,7 @@
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../utils/supabase';
 import { Store, LogOut, LayoutDashboard, Flame, ChefHat, Sparkles } from 'lucide-react';
+import NotificationBell from '../components/NotificationBell';
 
 export default function RestaurantLayout() {
   const navigate = useNavigate();
@@ -69,9 +70,25 @@ export default function RestaurantLayout() {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 overflow-auto bg-[#FAF7F2]">
-        <Outlet />
-      </main>
+      <div className="flex-1 overflow-auto bg-[#FAF7F2] flex flex-col">
+        <header className="h-20 bg-white/80 backdrop-blur-md border-b border-[#ECE4D8] flex items-center justify-between px-8 sticky top-0 z-30">
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-700">Kitchen Operations</span>
+            <h1 className="text-xl font-display font-extrabold text-[#191411]">
+              Live Order Dispatch & Kitchen Console
+            </h1>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <NotificationBell role="restaurant" />
+          </div>
+        </header>
+
+        <main className="flex-1">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }
+

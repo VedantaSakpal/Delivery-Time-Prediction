@@ -188,9 +188,68 @@ def place_order(request: PlaceOrderRequest, current_user: dict = Depends(get_cur
             print(f"Notice: could not link prediction with order_id ({pred_err}). Saving prediction without order_id.")
             supabase.table("predictions").insert(db_payload).execute()
 
+        # In-app notifications: notify restaurant owner, diner, and admin
+        try:
+            from app.database.notifications import create_notification
+            rest_info = supabase.table("restaurants").select("name, owner_id").eq("id", request.restaurant_id).single().execute()
+            rest_name = rest_info.data.get("name", "Kitchen Partner") if rest_info.data else "Kitchen Partner"
+            rest_owner_id = rest_info.data.get("owner_id") if rest_info.data else None
+            diner_name = current_user.get("user_metadata", {}).get("full_name") or current_user.get("email", "Diner Guest")
+
+            # 1. Notify Restaurant Owner
+            if rest_owner_id:
+                create_notification(
+                    recipient_id=rest_owner_id,
+                    role="restaurant",
+                    title="New Order Received! 🔔",
+                    message=f"Order #{order_id[:8]} received from {diner_name} for Rs. {total_amount:,.2f} ({len(request.items)} items).",
+                    notif_type="new_order",
+                    data={
+                        "order_id": order_id,
+                        "restaurant_id": request.restaurant_id,
+                        "restaurant_name": rest_name,
+                        "amount": total_amount,
+                        "items_count": len(request.items),
+                        "diner_name": diner_name
+                    }
+                )
+
+            # 2. Notify Diner
+            create_notification(
+                recipient_id=current_user["id"],
+                role="user",
+                title="Order Confirmed! 🎉",
+                message=f"Your order #{order_id[:8]} with {rest_name} has been placed. Estimated arrival at ~{arrival_time_str}.",
+                notif_type="order_placed",
+                data={
+                    "order_id": order_id,
+                    "restaurant_id": request.restaurant_id,
+                    "restaurant_name": rest_name,
+                    "estimated_arrival": arrival_time_str,
+                    "amount": total_amount
+                }
+            )
+
+            # 3. Notify Admin
+            create_notification(
+                recipient_id="admin",
+                role="admin",
+                title="New Platform Order 📦",
+                message=f"Order #{order_id[:8]} (Rs. {total_amount:,.2f}) placed at {rest_name} by {diner_name}.",
+                notif_type="admin_order",
+                data={
+                    "order_id": order_id,
+                    "restaurant_id": request.restaurant_id,
+                    "restaurant_name": rest_name,
+                    "amount": total_amount
+                }
+            )
+        except Exception as n_err:
+            print("Notice: order notification dispatch error:", n_err)
+
         return {
             "success": True, 
-            "order_id": order_id,
+            "order_id": order_id, 
             "prediction": prediction_result,
             "distance_km": actual_distance,
             "order_time": order_time_str,
@@ -238,6 +297,47 @@ def update_order_status(order_id: str, update: OrderStatusUpdate, current_user: 
                 raise HTTPException(status_code=403, detail="Not authorized to modify this order")
              
         upd = supabase.table("orders").update({"status": update.status}).eq("id", order_id).execute()
+
+        # Send in-app notification to diner about status change
+        try:
+            from app.database.notifications import create_notification
+            rest_res = supabase.table("restaurants").select("name").eq("id", order.data["restaurant_id"]).single().execute()
+            rest_name = rest_res.data.get("name", "Kitchen Partner") if rest_res.data else "Kitchen Partner"
+            diner_id = order.data.get("user_id")
+
+            status_clean = update.status.lower()
+            if status_clean == "preparing":
+                title = "👨‍🍳 Kitchen Preparing Your Meal"
+                msg = f"{rest_name} is actively cooking your order #{order_id[:8]} fresh!"
+            elif status_clean in ["ready", "out_for_delivery"]:
+                title = "🛵 Order Out For Delivery!"
+                msg = f"Your order #{order_id[:8]} from {rest_name} is on the way with our courier."
+            elif status_clean in ["delivered", "completed"]:
+                title = "✅ Order Delivered! Bon Appétit"
+                msg = f"Your order #{order_id[:8]} from {rest_name} has arrived. Enjoy your meal!"
+            elif status_clean in ["rejected", "cancelled"]:
+                title = "❌ Order Cancelled"
+                msg = f"Your order #{order_id[:8]} from {rest_name} could not be fulfilled."
+            else:
+                title = f"Order Status Update: {update.status.replace('_', ' ').title()}"
+                msg = f"Your order #{order_id[:8]} from {rest_name} status is now {update.status.replace('_', ' ')}."
+
+            if diner_id:
+                create_notification(
+                    recipient_id=diner_id,
+                    role="user",
+                    title=title,
+                    message=msg,
+                    notif_type="status_update",
+                    data={
+                        "order_id": order_id,
+                        "status": update.status,
+                        "restaurant_name": rest_name
+                    }
+                )
+        except Exception as notif_err:
+            print("Notice: status change notification error:", notif_err)
+
         return {
             "success": True, 
             "order_id": order_id, 
@@ -246,3 +346,4 @@ def update_order_status(order_id: str, update: OrderStatusUpdate, current_user: 
         }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
