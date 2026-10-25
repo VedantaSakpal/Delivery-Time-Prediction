@@ -163,5 +163,338 @@
     },
     "is_read": false,
     "created_at": "2026-10-25T11:21:04.320145+00:00"
+  },
+  "cf6e97f6-b13d-40f3-b351-55549c41ee9f": {
+    "id": "cf6e97f6-b13d-40f3-b351-55549c41ee9f",
+    "recipient_id": "c22e3d46-5114-4b16-8d16-981b0920a4a0",
+    "role": "restaurant",
+    "title": "New Order Received! \ud83d\udd14",
+    "message": "Order #28c9073d received from vedantsakpal400@gmail.com for Rs. 14.50 (1 items).",
+    "type": "new_order",
+    "data": {
+      "order_id": "28c9073d-b094-4f20-9e8f-146b5ae8d02e",
+      "restaurant_id": "40c1215c-0990-40e2-9769-3c03c1733ebd",
+      "restaurant_name": "Spice Route Indian Kitchen",
+      "amount": 14.5,
+      "items_count": 1,
+      "diner_name": "vedantsakpal400@gmail.com"
+    },
+    "is_read": false,
+    "created_at": "2026-10-25T12:20:41.975170+00:00"
+  },
+  "c517ec3a-63c0-4b9b-be6c-27555a47e772": {
+    "id": "c517ec3a-63c0-4b9b-be6c-27555a47e772",
+    "recipient_id": "84737edd-c3a7-42c2-bdf3-e9df699116ba",
+    "role": "user",
+    "title": "Order Confirmed! \ud83c\udf89",
+    "message": "Your order #28c9073d with Spice Route Indian Kitchen has been placed. Estimated arrival at ~06:40 PM.",
+    "type": "order_placed",
+    "data": {
+      "order_id": "28c9073d-b094-4f20-9e8f-146b5ae8d02e",
+      "restaurant_id": "40c1215c-0990-40e2-9769-3c03c1733ebd",
+      "restaurant_name": "Spice Route Indian Kitchen",
+      "estimated_arrival": "06:40 PM",
+      "amount": 14.5
+    },
+    "is_read": false,
+    "created_at": "2026-10-25T12:20:42.026887+00:00"
+  },
+  "96a2aae4-576e-46ef-89f8-d886d8c8e158": {
+    "id": "96a2aae4-576e-46ef-89f8-d886d8c8e158",
+    "recipient_id": "admin",
+    "role": "admin",
+    "title": "New Platform Order \ud83d\udce6",
+    "message": "Order #28c9073d (Rs. 14.50) placed at Spice Route Indian Kitchen by vedantsakpal400@gmail.com.",
+    "type": "admin_order",
+    "data": {
+      "order_id": "28c9073d-b094-4f20-9e8f-146b5ae8d02e",
+      "restaurant_id": "40c1215c-0990-40e2-9769-3c03c1733ebd",
+      "restaurant_name": "Spice Route Indian Kitchen",
+      "amount": 14.5
+    },
+    "is_read": false,
+    "created_at": "2026-10-25T12:20:42.070088+00:00"
+  },
+  "7594b13f-688d-4780-8d26-0b3d40aad648": {
+    "id": "7594b13f-688d-4780-8d26-0b3d40aad648",
+    "recipient_id": "c22e3d46-5114-4b16-8d16-981b0920a4a0",
+    "role": "restaurant",
+    "title": "New Order Received! \ud83d\udd14",
+    "message": "Order #2641f9f7 received from vedantsakpal400@gmail.com for Rs. 17.99 (1 items).",
+    "type": "new_order",
+    "data": {
+      "order_id": "2641f9f7-2546-4dda-a6e7-2b7f5b19980a",
+      "restaurant_id": "40c1215c-0990-40e2-9769-3c03c1733ebd",
+      "restaurant_name": "Spice Route Indian Kitchen",
+      "amount": 17.99,
+      "items_count": 1,
+      "diner_name": "vedantsakpal400@gmail.com"
+    },
+    "is_read": false,
+    "created_at": "2026-10-25T12:22:22.374775+00:00"
+  },
+  "7d99dddd-eb35-4ed3-941c-907a19aba679": {
+    "id": "7d99dddd-eb35-4ed3-941c-907a19aba679",
+    "recipient_id": "84737edd-c3a7-42c2-bdf3-e9df699116ba",
+    "role": "user",
+    "title": "Order Confirmed! \ud83c\udf89",
+    "message": "Your order #2641f9f7 with Spice Route Indian Kitchen has been placed. Estimated arrival at ~06:48 PM.",
+    "type": "order_placed",
+    "data": {
+      "order_id": "2641f9f7-2546-4dda-a6e7-2b7f5b19980a",
+      "restaurant_id": "40c1215c-0990-40e2-9769-3c03c1733ebd",
+      "restaurant_name": "Spice Route Indian Kitchen",
+      "estimated_arrival": "06:48 PM",
+      "amount": 17.99
+    },
+    "is_read": false,
+    "created_at": "2026-10-25T12:22:22.427875+00:00"
+  },
+  "6387e9fe-41b2-439b-a493-ed7e094b512c": {
+    "id": "6387e9fe-41b2-439b-a493-ed7e094b512c",
+    "recipient_id": "admin",
+    "role": "admin",
+    "title": "New Platform Order \ud83d\udce6",
+    "message": "Order #2641f9f7 (Rs. 17.99) placed at Spice Route Indian Kitchen by vedantsakpal400@gmail.com.",
+    "type": "admin_order",
+    "data": {
+      "order_id": "2641f9f7-2546-4dda-a6e7-2b7f5b19980a",
+      "restaurant_id": "40c1215c-0990-40e2-9769-3c03c1733ebd",
+      "restaurant_name": "Spice Route Indian Kitchen",
+      "amount": 17.99
+    },
+    "is_read": false,
+    "created_at": "2026-10-25T12:22:22.490739+00:00"
+  },
+  "977269d1-2133-4572-a805-441cd2f24140": {
+    "id": "977269d1-2133-4572-a805-441cd2f24140",
+    "recipient_id": "c22e3d46-5114-4b16-8d16-981b0920a4a0",
+    "role": "restaurant",
+    "title": "New Order Received! \ud83d\udd14",
+    "message": "Order #497076c8 received from vedantsakpal400@gmail.com for Rs. 15.99 (1 items).",
+    "type": "new_order",
+    "data": {
+      "order_id": "497076c8-8df2-447e-99b8-5dcd12b0a004",
+      "restaurant_id": "40c1215c-0990-40e2-9769-3c03c1733ebd",
+      "restaurant_name": "Spice Route Indian Kitchen",
+      "amount": 15.99,
+      "items_count": 1,
+      "diner_name": "vedantsakpal400@gmail.com"
+    },
+    "is_read": false,
+    "created_at": "2026-10-25T12:24:49.580777+00:00"
+  },
+  "504d9eef-6082-4e8d-8f7c-44334c779933": {
+    "id": "504d9eef-6082-4e8d-8f7c-44334c779933",
+    "recipient_id": "84737edd-c3a7-42c2-bdf3-e9df699116ba",
+    "role": "user",
+    "title": "Order Confirmed! \ud83c\udf89",
+    "message": "Your order #497076c8 with Spice Route Indian Kitchen has been placed. Estimated arrival at ~06:42 PM.",
+    "type": "order_placed",
+    "data": {
+      "order_id": "497076c8-8df2-447e-99b8-5dcd12b0a004",
+      "restaurant_id": "40c1215c-0990-40e2-9769-3c03c1733ebd",
+      "restaurant_name": "Spice Route Indian Kitchen",
+      "estimated_arrival": "06:42 PM",
+      "amount": 15.99
+    },
+    "is_read": false,
+    "created_at": "2026-10-25T12:24:49.632644+00:00"
+  },
+  "e658ba0d-64d9-40cb-930d-3e1151bffb3a": {
+    "id": "e658ba0d-64d9-40cb-930d-3e1151bffb3a",
+    "recipient_id": "admin",
+    "role": "admin",
+    "title": "New Platform Order \ud83d\udce6",
+    "message": "Order #497076c8 (Rs. 15.99) placed at Spice Route Indian Kitchen by vedantsakpal400@gmail.com.",
+    "type": "admin_order",
+    "data": {
+      "order_id": "497076c8-8df2-447e-99b8-5dcd12b0a004",
+      "restaurant_id": "40c1215c-0990-40e2-9769-3c03c1733ebd",
+      "restaurant_name": "Spice Route Indian Kitchen",
+      "amount": 15.99
+    },
+    "is_read": false,
+    "created_at": "2026-10-25T12:24:49.692058+00:00"
+  },
+  "3538bfe0-4280-4db8-ac0c-043aaf8caef7": {
+    "id": "3538bfe0-4280-4db8-ac0c-043aaf8caef7",
+    "recipient_id": "84737edd-c3a7-42c2-bdf3-e9df699116ba",
+    "role": "user",
+    "title": "Order Status Update: Accepted",
+    "message": "Your order #28c9073d from Spice Route Indian Kitchen status is now accepted.",
+    "type": "status_update",
+    "data": {
+      "order_id": "28c9073d-b094-4f20-9e8f-146b5ae8d02e",
+      "status": "accepted",
+      "restaurant_name": "Spice Route Indian Kitchen"
+    },
+    "is_read": false,
+    "created_at": "2026-10-25T12:27:52.198663+00:00"
+  },
+  "ee170436-168e-47cd-b4fa-076f401ef1f1": {
+    "id": "ee170436-168e-47cd-b4fa-076f401ef1f1",
+    "recipient_id": "84737edd-c3a7-42c2-bdf3-e9df699116ba",
+    "role": "user",
+    "title": "\u274c Order Cancelled",
+    "message": "Your order #497076c8 from Spice Route Indian Kitchen could not be fulfilled.",
+    "type": "status_update",
+    "data": {
+      "order_id": "497076c8-8df2-447e-99b8-5dcd12b0a004",
+      "status": "rejected",
+      "restaurant_name": "Spice Route Indian Kitchen"
+    },
+    "is_read": false,
+    "created_at": "2026-10-25T12:28:11.821770+00:00"
+  },
+  "83e7f284-c576-4f6b-b09a-a8820e791637": {
+    "id": "83e7f284-c576-4f6b-b09a-a8820e791637",
+    "recipient_id": "84737edd-c3a7-42c2-bdf3-e9df699116ba",
+    "role": "user",
+    "title": "\ud83d\udc68\u200d\ud83c\udf73 Kitchen Preparing Your Meal",
+    "message": "Spice Route Indian Kitchen is actively cooking your order #28c9073d fresh!",
+    "type": "status_update",
+    "data": {
+      "order_id": "28c9073d-b094-4f20-9e8f-146b5ae8d02e",
+      "status": "preparing",
+      "restaurant_name": "Spice Route Indian Kitchen"
+    },
+    "is_read": false,
+    "created_at": "2026-10-25T12:28:20.609181+00:00"
+  },
+  "62fa4576-fa7a-47d7-90f6-2add161ce0a6": {
+    "id": "62fa4576-fa7a-47d7-90f6-2add161ce0a6",
+    "recipient_id": "84737edd-c3a7-42c2-bdf3-e9df699116ba",
+    "role": "user",
+    "title": "\ud83d\udef5 Order Out For Delivery!",
+    "message": "Your order #28c9073d from Spice Route Indian Kitchen is on the way with our courier.",
+    "type": "status_update",
+    "data": {
+      "order_id": "28c9073d-b094-4f20-9e8f-146b5ae8d02e",
+      "status": "ready",
+      "restaurant_name": "Spice Route Indian Kitchen"
+    },
+    "is_read": false,
+    "created_at": "2026-10-25T12:28:24.983530+00:00"
+  },
+  "ea848355-2fb5-4825-9b7e-b65582df6137": {
+    "id": "ea848355-2fb5-4825-9b7e-b65582df6137",
+    "recipient_id": "84737edd-c3a7-42c2-bdf3-e9df699116ba",
+    "role": "user",
+    "title": "\ud83d\udef5 Order Out For Delivery!",
+    "message": "Your order #28c9073d from Spice Route Indian Kitchen is on the way with our courier.",
+    "type": "status_update",
+    "data": {
+      "order_id": "28c9073d-b094-4f20-9e8f-146b5ae8d02e",
+      "status": "out_for_delivery",
+      "restaurant_name": "Spice Route Indian Kitchen"
+    },
+    "is_read": false,
+    "created_at": "2026-10-25T12:28:48.117414+00:00"
+  },
+  "f3fea350-085a-4ba5-a208-19fffd0fcc2d": {
+    "id": "f3fea350-085a-4ba5-a208-19fffd0fcc2d",
+    "recipient_id": "84737edd-c3a7-42c2-bdf3-e9df699116ba",
+    "role": "user",
+    "title": "\u2705 Order Delivered! Bon App\u00e9tit",
+    "message": "Your order #28c9073d from Spice Route Indian Kitchen has arrived. Enjoy your meal!",
+    "type": "status_update",
+    "data": {
+      "order_id": "28c9073d-b094-4f20-9e8f-146b5ae8d02e",
+      "status": "delivered",
+      "restaurant_name": "Spice Route Indian Kitchen"
+    },
+    "is_read": false,
+    "created_at": "2026-10-25T12:29:00.771918+00:00"
+  },
+  "790272d9-fedb-48d6-8b94-f1e8a27b0900": {
+    "id": "790272d9-fedb-48d6-8b94-f1e8a27b0900",
+    "recipient_id": "84737edd-c3a7-42c2-bdf3-e9df699116ba",
+    "role": "user",
+    "title": "\u274c Order Cancelled",
+    "message": "Your order #2641f9f7 from Spice Route Indian Kitchen could not be fulfilled.",
+    "type": "status_update",
+    "data": {
+      "order_id": "2641f9f7-2546-4dda-a6e7-2b7f5b19980a",
+      "status": "rejected",
+      "restaurant_name": "Spice Route Indian Kitchen"
+    },
+    "is_read": false,
+    "created_at": "2026-10-25T12:29:32.711172+00:00"
+  },
+  "baf888d7-1cde-4d55-8a83-da98342d14c3": {
+    "id": "baf888d7-1cde-4d55-8a83-da98342d14c3",
+    "recipient_id": "84737edd-c3a7-42c2-bdf3-e9df699116ba",
+    "role": "user",
+    "title": "\u274c Order Cancelled",
+    "message": "Your order #2641f9f7 from Spice Route Indian Kitchen could not be fulfilled.",
+    "type": "status_update",
+    "data": {
+      "order_id": "2641f9f7-2546-4dda-a6e7-2b7f5b19980a",
+      "status": "rejected",
+      "restaurant_name": "Spice Route Indian Kitchen"
+    },
+    "is_read": false,
+    "created_at": "2026-10-25T12:29:33.807215+00:00"
+  },
+  "1d97e111-7177-44b0-b484-da9cae8beca0": {
+    "id": "1d97e111-7177-44b0-b484-da9cae8beca0",
+    "recipient_id": "84737edd-c3a7-42c2-bdf3-e9df699116ba",
+    "role": "user",
+    "title": "\ud83d\udef5 Order Out For Delivery!",
+    "message": "Your order #e4beb06d from Spice Route Indian Kitchen is on the way with our courier.",
+    "type": "status_update",
+    "data": {
+      "order_id": "e4beb06d-2dd7-4db4-9739-bfa0b80449ae",
+      "status": "ready",
+      "restaurant_name": "Spice Route Indian Kitchen"
+    },
+    "is_read": false,
+    "created_at": "2026-10-25T12:29:47.437405+00:00"
+  },
+  "d579e1de-8ead-4f12-ba62-a579d68b9e89": {
+    "id": "d579e1de-8ead-4f12-ba62-a579d68b9e89",
+    "recipient_id": "84737edd-c3a7-42c2-bdf3-e9df699116ba",
+    "role": "user",
+    "title": "\ud83d\udef5 Order Out For Delivery!",
+    "message": "Your order #e4beb06d from Spice Route Indian Kitchen is on the way with our courier.",
+    "type": "status_update",
+    "data": {
+      "order_id": "e4beb06d-2dd7-4db4-9739-bfa0b80449ae",
+      "status": "out_for_delivery",
+      "restaurant_name": "Spice Route Indian Kitchen"
+    },
+    "is_read": false,
+    "created_at": "2026-10-25T12:29:53.061555+00:00"
+  },
+  "df2728a0-73c2-44f1-b1df-646751c146b8": {
+    "id": "df2728a0-73c2-44f1-b1df-646751c146b8",
+    "recipient_id": "84737edd-c3a7-42c2-bdf3-e9df699116ba",
+    "role": "user",
+    "title": "\ud83d\udef5 Order Out For Delivery!",
+    "message": "Your order #e4beb06d from Spice Route Indian Kitchen is on the way with our courier.",
+    "type": "status_update",
+    "data": {
+      "order_id": "e4beb06d-2dd7-4db4-9739-bfa0b80449ae",
+      "status": "out_for_delivery",
+      "restaurant_name": "Spice Route Indian Kitchen"
+    },
+    "is_read": false,
+    "created_at": "2026-10-25T12:29:55.475244+00:00"
+  },
+  "2410f6e4-74e2-4cbe-8ae2-5517433a4c4e": {
+    "id": "2410f6e4-74e2-4cbe-8ae2-5517433a4c4e",
+    "recipient_id": "84737edd-c3a7-42c2-bdf3-e9df699116ba",
+    "role": "user",
+    "title": "\u2705 Order Delivered! Bon App\u00e9tit",
+    "message": "Your order #e4beb06d from Spice Route Indian Kitchen has arrived. Enjoy your meal!",
+    "type": "status_update",
+    "data": {
+      "order_id": "e4beb06d-2dd7-4db4-9739-bfa0b80449ae",
+      "status": "delivered",
+      "restaurant_name": "Spice Route Indian Kitchen"
+    },
+    "is_read": false,
+    "created_at": "2026-10-25T12:30:06.647550+00:00"
   }
 }
