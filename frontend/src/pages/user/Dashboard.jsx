@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { Loader2, TrendingUp, Clock, AlertTriangle, Sparkles, Store, ShoppingBag, ArrowRight, Zap, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import ActiveOrderTracker from '../../components/ActiveOrderTracker';
 
 export default function Dashboard() {
   const [stats, setStats] = useState(null);
@@ -81,6 +82,9 @@ export default function Dashboard() {
           </Link>
         </div>
       </div>
+
+      {/* Live Active Order Tracking (Realtime synced with restaurant status changes) */}
+      <ActiveOrderTracker />
 
       {/* Metrics Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

@@ -2,13 +2,14 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import {
   Store, Clock, CheckCircle, Truck, XCircle,
-  BarChart2, ShoppingBag, TrendingUp, DollarSign, Package
+  BarChart2, ShoppingBag, TrendingUp, DollarSign, Package, FileText
 } from 'lucide-react';
 import { supabase } from '../../utils/supabase';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell
 } from 'recharts';
+import OperationsReportView from '../../components/OperationsReportView';
 
 const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/api\/?$/, '');
 
@@ -125,8 +126,9 @@ export default function RestaurantDashboard() {
       {/* Tabs */}
       <div className="flex gap-2 border-b border-slate-200">
         {[
-          { key: 'orders',    label: 'Orders',    icon: ShoppingBag },
-          { key: 'analytics', label: 'Analytics', icon: BarChart2   },
+          { key: 'orders',    label: 'Orders',                      icon: ShoppingBag },
+          { key: 'analytics', label: 'Analytics',                   icon: BarChart2   },
+          { key: 'reports',   label: 'Operations Reports (PDF)',   icon: FileText    },
         ].map(({ key, label, icon: Icon }) => (
           <button
             key={key}
@@ -200,6 +202,11 @@ export default function RestaurantDashboard() {
       {/* ── ANALYTICS TAB ── */}
       {tab === 'analytics' && (
         <AnalyticsPanel analytics={analytics} />
+      )}
+
+      {/* ── REPORTS TAB (Day, Week, Month, Year & PDF) ── */}
+      {tab === 'reports' && (
+        <OperationsReportView userRole="restaurant" />
       )}
     </div>
   );

@@ -1,7 +1,7 @@
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../utils/supabase';
-import { LayoutDashboard, Users, FileText, PieChart, Database, LogOut, Store, ShoppingBag, Flame, Activity } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, PieChart, Database, LogOut, Store, ShoppingBag, Flame, Activity, Layers, Cpu } from 'lucide-react';
 
 const AdminLayout = () => {
   const { profile } = useAuth();
@@ -15,12 +15,14 @@ const AdminLayout = () => {
 
   const navItems = [
     { name: 'Fleet Overview', path: '/admin/dashboard', icon: LayoutDashboard },
-    { name: 'Users & Roles', path: '/admin/users', icon: Users },
-    { name: 'Kitchen Partners', path: '/admin/restaurants', icon: Store },
-    { name: 'Live Orders', path: '/admin/orders', icon: ShoppingBag },
-    { name: 'Prediction Logs', path: '/admin/predictions', icon: FileText },
+    { name: 'Data Warehouse & Mining', path: '/admin/warehouse', icon: Database },
     { name: 'OLAP Analytics', path: '/admin/analytics', icon: PieChart },
-    { name: 'ML Model Telemetry', path: '/admin/model', icon: Database },
+    { name: 'Executive Reports (PDF)', path: '/admin/reports', icon: FileText },
+    { name: 'Live Orders', path: '/admin/orders', icon: ShoppingBag },
+    { name: 'Kitchen Partners', path: '/admin/restaurants', icon: Store },
+    { name: 'Users & Roles', path: '/admin/users', icon: Users },
+    { name: 'Prediction Logs', path: '/admin/predictions', icon: Activity },
+    { name: 'ML Model Telemetry', path: '/admin/model', icon: Cpu },
   ];
 
   return (

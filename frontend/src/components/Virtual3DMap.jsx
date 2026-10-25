@@ -57,6 +57,24 @@ export default function Virtual3DMap({
   const [nearestDistrict, setNearestDistrict] = useState(() => findNearestDistrict(currentLoc.x, currentLoc.z));
   const [cameraMode, setCameraMode] = useState('perspective'); // 'perspective' | 'topdown'
 
+  // Live order time clock
+  const [now, setNow] = useState(() => new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 10000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const currentTimeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const currentHour = now.getHours();
+  const timeOfDayLabel =
+    currentHour >= 6 && currentHour < 12 ? 'Morning' :
+    currentHour >= 12 && currentHour < 17 ? 'Afternoon' :
+    currentHour >= 17 && currentHour < 22 ? 'Evening' : 'Night';
+
+  const arrivalDate = new Date(now.getTime() + estTimeMin * 60000);
+  const estimatedArrivalStr = arrivalDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
   // References to dynamic 3D objects for updates inside the Three.js loop
   const userPinGroupRef = useRef(null);
   const routeLineRef = useRef(null);
@@ -76,6 +94,8 @@ export default function Virtual3DMap({
     setEstTimeMin(eta);
     setNearestDistrict(district);
 
+    const updatedArrival = new Date(now.getTime() + eta * 60000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
     if (onLocationSelect) {
       onLocationSelect({
         x: newLoc.x,
@@ -84,7 +104,11 @@ export default function Virtual3DMap({
         estimatedTimeMin: eta,
         district: district.district,
         landmark: district.name,
-        address: addr
+        address: addr,
+        orderTimeISO: now.toISOString(),
+        orderTimeFormatted: currentTimeStr,
+        estimatedArrivalTime: updatedArrival,
+        timeOfDay: timeOfDayLabel
       });
     }
   };
@@ -140,7 +164,7 @@ export default function Virtual3DMap({
     renderer.setSize(width, heightPx);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.type = THREE.PCFShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.15;
     container.appendChild(renderer.domElement);
@@ -566,12 +590,12 @@ export default function Virtual3DMap({
     domEl.addEventListener('pointerup', onPointerUp);
 
     // 12. Animation Loop
-    let clock = new THREE.Clock();
+    const startTime = performance.now();
     let animId;
 
     const animate = () => {
       animId = requestAnimationFrame(animate);
-      const elapsedTime = clock.getElapsedTime();
+      const elapsedTime = (performance.now() - startTime) * 0.001;
 
       // Animate pulsing rings
       pulseRingsRef.current.forEach((r, idx) => {
@@ -709,10 +733,18 @@ export default function Virtual3DMap({
           </div>
         </div>
 
-        {/* Real-time distance and estimated delivery duration HUD */}
-        <div className="flex items-center gap-2 self-start sm:self-auto">
+        {/* Real-time distance, current order time, and estimated arrival HUD */}
+        <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
           <div className="px-3 py-1.5 bg-white border border-[#ECE4D8] rounded-xl shadow-xs text-right">
-            <p className="text-[9px] uppercase font-bold text-[#938376] tracking-wider">Calculated Distance</p>
+            <p className="text-[9px] uppercase font-bold text-[#938376] tracking-wider">Order Time ({timeOfDayLabel})</p>
+            <p className="text-sm font-black text-slate-800 flex items-center justify-end gap-1">
+              <Clock size={13} className="text-amber-500" />
+              {currentTimeStr}
+            </p>
+          </div>
+
+          <div className="px-3 py-1.5 bg-white border border-[#ECE4D8] rounded-xl shadow-xs text-right">
+            <p className="text-[9px] uppercase font-bold text-[#938376] tracking-wider">Transit Distance</p>
             <p className="text-sm font-black text-orange-600 flex items-center justify-end gap-1">
               <Navigation size={13} className="text-orange-500 fill-orange-500" />
               {distanceKm} km
@@ -720,10 +752,10 @@ export default function Virtual3DMap({
           </div>
 
           <div className="px-3 py-1.5 bg-white border border-[#ECE4D8] rounded-xl shadow-xs text-right">
-            <p className="text-[9px] uppercase font-bold text-[#938376] tracking-wider">Estimated Transit</p>
+            <p className="text-[9px] uppercase font-bold text-[#938376] tracking-wider">Est. Arrival ({estTimeMin}m)</p>
             <p className="text-sm font-black text-emerald-600 flex items-center justify-end gap-1">
-              <Clock size={13} />
-              ~{estTimeMin} min
+              <Sparkles size={13} />
+              ~{estimatedArrivalStr}
             </p>
           </div>
         </div>

@@ -4,9 +4,57 @@ from pydantic import BaseModel
 from app.api.deps import get_current_user
 from app.database.supabase import supabase
 from app.ml.predictor import predict_delivery_time
+from datetime import datetime, timedelta
 import random
 
 router = APIRouter()
+
+def resolve_time_and_traffic(
+    order_time_raw: Optional[str] = None,
+    local_hour: Optional[int] = None,
+    local_minute: Optional[int] = None,
+    local_time_str: Optional[str] = None
+):
+    # If client passed their exact local device hour/minute (e.g. 15, 32 from laptop)
+    if local_hour is not None and local_minute is not None:
+        hour = int(local_hour)
+        minute = int(local_minute)
+        order_time_str = local_time_str or f"{hour % 12 or 12:02d}:{minute:02d} {'AM' if hour < 12 else 'PM'}"
+    else:
+        order_dt = None
+        if order_time_raw:
+            try:
+                clean_str = order_time_raw.replace("Z", "+00:00")
+                order_dt = datetime.fromisoformat(clean_str)
+            except Exception:
+                pass
+        if not order_dt:
+            order_dt = datetime.now()
+        hour = order_dt.hour
+        minute = order_dt.minute
+        order_time_str = order_dt.strftime("%I:%M %p")
+
+    time_float = hour + minute / 60.0
+
+    # 1. Real Time_of_Day mapping for model: 'Morning', 'Afternoon', 'Evening', 'Night'
+    if 6 <= hour < 12:
+        time_of_day = "Morning"
+    elif 12 <= hour < 17:
+        time_of_day = "Afternoon"
+    elif 17 <= hour < 22:
+        time_of_day = "Evening"
+    else:
+        time_of_day = "Night"
+
+    # 2. Dynamic Traffic_Level based on urban rush hours
+    if (8.5 <= time_float <= 10.5) or (12.5 <= time_float <= 14.5) or (18.0 <= time_float <= 21.0):
+        traffic_level = "High"
+    elif (22.5 <= time_float) or (time_float <= 6.5):
+        traffic_level = "Low"
+    else:
+        traffic_level = "Medium"
+
+    return hour, minute, order_time_str, time_of_day, traffic_level
 
 class OrderItemInput(BaseModel):
     menu_item_id: str
@@ -19,6 +67,10 @@ class PlaceOrderRequest(BaseModel):
     payment_method: str = "cash"
     distance_km: Optional[float] = None
     user_location: Optional[Dict[str, float]] = None
+    order_time: Optional[str] = None
+    local_hour: Optional[int] = None
+    local_minute: Optional[int] = None
+    local_time_str: Optional[str] = None
     
 class OrderStatusUpdate(BaseModel):
     status: str
@@ -58,7 +110,15 @@ def place_order(request: PlaceOrderRequest, current_user: dict = Depends(get_cur
                 "price_at_time": menu_items_cache[item.menu_item_id]["price"]
             }).execute()
 
-        # Generate Delivery Prediction using actual 3D map distance
+        # Fetch original order placement time and determine dynamic time of day + traffic
+        hour, minute, order_time_str, time_of_day, traffic_level = resolve_time_and_traffic(
+            order_time_raw=request.order_time,
+            local_hour=request.local_hour,
+            local_minute=request.local_minute,
+            local_time_str=request.local_time_str
+        )
+
+        # Generate Delivery Prediction using actual 3D map distance and current time factors
         rest_res = supabase.table("restaurants").select("preparation_time_min").eq("id", request.restaurant_id).single().execute()
         prep_time = float(rest_res.data.get("preparation_time_min", 15)) if rest_res.data else 15.0
         
@@ -71,8 +131,8 @@ def place_order(request: PlaceOrderRequest, current_user: dict = Depends(get_cur
         model_input = {
             "Distance_km": actual_distance,
             "Weather": "Clear", 
-            "Traffic_Level": "Medium",
-            "Time_of_Day": "Evening",
+            "Traffic_Level": traffic_level,
+            "Time_of_Day": time_of_day,
             "Vehicle_Type": "Motorcycle",
             "Preparation_Time_min": prep_time,
             "Courier_Experience_yrs": round(random.uniform(1.5, 4.5), 1)
@@ -80,6 +140,20 @@ def place_order(request: PlaceOrderRequest, current_user: dict = Depends(get_cur
         
         prediction_result = predict_delivery_time(model_input)
         
+        # Calculate expected clock arrival time using user's exact local time
+        pred_min = float(prediction_result.get("predicted_delivery_time_min", 30))
+        arrival_total_min = hour * 60 + minute + int(round(pred_min))
+        arr_h = (arrival_total_min // 60) % 24
+        arr_m = arrival_total_min % 60
+        arr_ampm = "AM" if arr_h < 12 else "PM"
+        arr_h12 = arr_h % 12 or 12
+        arrival_time_str = f"{arr_h12:02d}:{arr_m:02d} {arr_ampm}"
+        
+        prediction_result["order_time_formatted"] = order_time_str
+        prediction_result["estimated_arrival_time"] = arrival_time_str
+        prediction_result["time_of_day"] = time_of_day
+        prediction_result["traffic_level"] = traffic_level
+
         db_payload = {
             "user_id": current_user["id"],
             "distance_km": actual_distance,
@@ -108,7 +182,11 @@ def place_order(request: PlaceOrderRequest, current_user: dict = Depends(get_cur
             "success": True, 
             "order_id": order_id,
             "prediction": prediction_result,
-            "distance_km": actual_distance
+            "distance_km": actual_distance,
+            "order_time": order_time_str,
+            "estimated_arrival_time": arrival_time_str,
+            "time_of_day": time_of_day,
+            "traffic_level": traffic_level
         }
     except Exception as e:
         import traceback
@@ -135,16 +213,26 @@ def get_order_prediction(order_id: str, current_user: dict = Depends(get_current
 
 @router.patch("/{order_id}/status")
 def update_order_status(order_id: str, update: OrderStatusUpdate, current_user: dict = Depends(get_current_user)):
-    if current_user.get("role") != "restaurant":
-        raise HTTPException(status_code=403, detail="Not a restaurant user")
+    user_role = current_user.get("role")
+    if user_role not in ["restaurant", "admin"]:
+        raise HTTPException(status_code=403, detail="Not authorized to update order status")
         
     try:
         order = supabase.table("orders").select("*").eq("id", order_id).single().execute()
-        res_rest = supabase.table("restaurants").select("id").eq("owner_id", current_user["id"]).single().execute()
-        if order.data["restaurant_id"] != res_rest.data["id"]:
-             raise HTTPException(status_code=403, detail="Not your order")
+        if not order.data:
+            raise HTTPException(status_code=404, detail="Order not found")
+            
+        if user_role == "restaurant":
+            res_rest = supabase.table("restaurants").select("id").eq("owner_id", current_user["id"]).single().execute()
+            if not res_rest.data or order.data["restaurant_id"] != res_rest.data["id"]:
+                raise HTTPException(status_code=403, detail="Not authorized to modify this order")
              
-        supabase.table("orders").update({"status": update.status}).eq("id", order_id).execute()
-        return {"success": True}
+        upd = supabase.table("orders").update({"status": update.status}).eq("id", order_id).execute()
+        return {
+            "success": True, 
+            "order_id": order_id, 
+            "status": update.status,
+            "order": upd.data[0] if upd.data else None
+        }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

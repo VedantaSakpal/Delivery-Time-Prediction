@@ -1,11 +1,13 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { supabase } from '../../utils/supabase';
 import {
   CreditCard, MapPin, Loader2, CheckCircle, Clock, ShieldCheck,
-  ArrowRight, AlertTriangle, BarChart2, Navigation, Compass, Sparkles, Building2
+  ArrowRight, AlertTriangle, BarChart2, Navigation, Compass, Sparkles, Building2,
+  Gift, Volume2
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Virtual3DMap from '../../components/Virtual3DMap';
 
 const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/api\/?$/, '');
@@ -16,13 +18,131 @@ const RELIABILITY_CONFIG = {
   Low:    { cls: 'bg-red-100 text-red-700 border-red-200',         icon: AlertTriangle,   label: 'Low'  },
 };
 
+/**
+ * Web Audio API Success Chime
+ * Generates an ascending 4-note celebratory chime on order confirmation.
+ */
+function playOrderSuccessChime() {
+  try {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return;
+    const ctx = new AudioContextClass();
+    if (ctx.state === 'suspended') {
+      ctx.resume();
+    }
+    const start = ctx.currentTime;
+    // Ascending celebratory arpeggio: C5, E5, G5, C6
+    const notes = [
+      { freq: 523.25, time: 0.00, dur: 0.32 },
+      { freq: 659.25, time: 0.12, dur: 0.32 },
+      { freq: 783.99, time: 0.24, dur: 0.35 },
+      { freq: 1046.50, time: 0.36, dur: 0.65 }
+    ];
+
+    notes.forEach((n) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(n.freq, start + n.time);
+
+      gain.gain.setValueAtTime(0.001, start + n.time);
+      gain.gain.exponentialRampToValueAtTime(0.32, start + n.time + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + n.time + n.dur);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(start + n.time);
+      osc.stop(start + n.time + n.dur + 0.05);
+    });
+  } catch (err) {
+    console.log('Audio chime not available:', err);
+  }
+}
+
+/**
+ * Live Delivery Countdown Timer with moving courier on road
+ */
+function DeliveryCountdownTimer({ totalMinutes, estimatedArrival }) {
+  const [remainingSeconds, setRemainingSeconds] = useState(() => Math.max(60, Math.round(totalMinutes * 60)));
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setRemainingSeconds((prev) => Math.max(0, prev - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const mins = Math.floor(remainingSeconds / 60);
+  const secs = remainingSeconds % 60;
+  const totalSecs = Math.max(1, Math.round(totalMinutes * 60));
+  const progressPct = Math.min(100, Math.max(0, ((totalSecs - remainingSeconds) / totalSecs) * 100));
+
+  return (
+    <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white p-6 rounded-3xl border border-slate-700 shadow-xl space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+          <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">
+            Live Delivery Countdown
+          </span>
+        </div>
+        <span className="text-xs text-slate-300 font-medium">
+          Expected Arrival: <strong className="text-amber-400 font-mono text-sm">{estimatedArrival}</strong>
+        </span>
+      </div>
+
+      <div className="flex items-baseline justify-between">
+        <div>
+          <p className="text-4xl font-display font-black text-white tracking-tight">
+            {mins}:{secs < 10 ? `0${secs}` : secs}
+            <span className="text-sm font-normal text-slate-400 ml-2">minutes left</span>
+          </p>
+        </div>
+        <div className="text-right">
+          <span className="text-xs font-bold text-amber-400 bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/20 inline-flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+            Kitchen Preparing Order
+          </span>
+        </div>
+      </div>
+
+      {/* Animated Courier Road */}
+      <div className="pt-2 relative">
+        <div className="w-full bg-slate-700/60 rounded-full h-3.5 overflow-hidden relative border border-slate-600/50">
+          <motion.div
+            className="bg-gradient-to-r from-orange-500 via-amber-400 to-emerald-400 h-3.5 rounded-full"
+            initial={{ width: '4%' }}
+            animate={{ width: `${Math.max(6, progressPct)}%` }}
+            transition={{ duration: 0.5 }}
+          />
+        </div>
+
+        {/* Courier Mascot moving along the transit road */}
+        <div
+          className="absolute -top-1.5 transition-all duration-700 transform -translate-x-1/2 text-xl select-none"
+          style={{ left: `${Math.max(4, Math.min(96, progressPct))}%` }}
+        >
+          🛵
+        </div>
+
+        <div className="flex justify-between text-[11px] text-slate-400 pt-2 font-medium">
+          <span className="flex items-center gap-1">🍳 Kitchen Order</span>
+          <span className="flex items-center gap-1">📦 Dispatch</span>
+          <span className="flex items-center gap-1 text-emerald-400 font-bold">🏠 Your Doorstep</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Checkout() {
   const { state }    = useLocation();
   const navigate     = useNavigate();
   const [address,  setAddress]    = useState('');
   const [payment,  setPayment]    = useState('cash');
   const [loading,  setLoading]    = useState(false);
-  const [confirmed, setConfirmed] = useState(null); // holds {order_id, prediction, distance_km}
+  const [confirmed, setConfirmed] = useState(null); // holds {order_id, prediction, distance_km, ...}
 
   // 3D Virtual Map selection state
   const [selectedMapLocation, setSelectedMapLocation] = useState(null);
@@ -52,6 +172,11 @@ export default function Checkout() {
   const { restaurant_id, items, restaurant_name } = state;
   const total = items.reduce((sum, i) => sum + (i.price * i.quantity), 0);
 
+  // Calculate promotional savings
+  const deliveryFeeWaived = 50;
+  const chefFestiveDiscount = Math.round(total * 0.12);
+  const totalSavings = deliveryFeeWaived + chefFestiveDiscount;
+
   const handlePlaceOrder = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -59,23 +184,40 @@ export default function Checkout() {
       const { data: session } = await supabase.auth.getSession();
       const token = session?.session?.access_token;
 
+      // Extract EXACT local device time from user's laptop (e.g. 15:32 / 03:32 PM)
+      const now = new Date();
+      const localHour = now.getHours();
+      const localMinute = now.getMinutes();
+      const localTimeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
       const payload = {
         restaurant_id,
         items: items.map(i => ({ menu_item_id: i.menu_item_id, quantity: i.quantity })),
         delivery_address: address || selectedMapLocation?.address || 'Virtual City Central',
         payment_method:   payment,
         distance_km:      distanceKm,
-        user_location:    selectedMapLocation ? { x: selectedMapLocation.x, z: selectedMapLocation.z } : null
+        user_location:    selectedMapLocation ? { x: selectedMapLocation.x, z: selectedMapLocation.z } : null,
+        order_time:       now.toISOString(),
+        local_hour:       localHour,
+        local_minute:     localMinute,
+        local_time_str:   localTimeStr
       };
 
       const res = await axios.post(`${API_URL}/api/orders/`, payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
+      // Play victory chime!
+      playOrderSuccessChime();
+
       setConfirmed({
         order_id: res.data.order_id,
         prediction: res.data.prediction,
-        distance_km: res.data.distance_km || distanceKm
+        distance_km: res.data.distance_km || distanceKm,
+        order_time: res.data.order_time || localTimeStr,
+        estimated_arrival_time: res.data.estimated_arrival_time || res.data.prediction?.estimated_arrival_time,
+        time_of_day: res.data.time_of_day || res.data.prediction?.time_of_day,
+        traffic_level: res.data.traffic_level || res.data.prediction?.traffic_level
       });
     } catch (err) {
       alert(err.response?.data?.detail || 'Failed to place order.');
@@ -91,19 +233,99 @@ export default function Checkout() {
     const RelIcon = rel.icon;
 
     return (
-      <div className="max-w-3xl mx-auto p-6 sm:p-8 space-y-6">
-        {/* Success banner */}
-        <div className="bg-emerald-50 border border-emerald-200 rounded-3xl p-6 flex items-center gap-4">
-          <CheckCircle className="w-10 h-10 text-emerald-600 shrink-0" />
-          <div>
-            <h2 className="font-display text-xl font-black text-emerald-950">Khana Order Placed!</h2>
-            <p className="text-xs text-emerald-700 mt-0.5">
-              Order #{confirmed.order_id.slice(0, 8)} · The kitchen has started warming up the kadai.
-            </p>
+      <div className="max-w-3xl mx-auto p-4 sm:p-8 space-y-6">
+        {/* Animated Confetti & Success Banner */}
+        <motion.div
+          initial={{ scale: 0.85, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: 'spring', damping: 15 }}
+          className="relative overflow-hidden bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 text-white rounded-3xl p-6 sm:p-7 shadow-xl shadow-emerald-600/20"
+        >
+          {/* Confetti particles */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            {[...Array(12)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute w-2 h-2 rounded-full"
+                style={{
+                  backgroundColor: ['#fef08a', '#f472b6', '#38bdf8', '#fbbf24', '#ffffff'][i % 5],
+                  top: `${15 + (i * 7) % 70}%`,
+                  left: `${(i * 13) % 95}%`
+                }}
+                initial={{ y: -20, opacity: 0 }}
+                animate={{ y: [0, 40, 80], opacity: [0, 1, 0] }}
+                transition={{ duration: 2 + (i % 3), repeat: Infinity, delay: i * 0.15 }}
+              />
+            ))}
           </div>
-        </div>
 
-        {/* 3D Map Transit Summary Card */}
+          <div className="relative z-10 flex items-center gap-4">
+            <motion.div
+              initial={{ rotate: -25, scale: 0 }}
+              animate={{ rotate: 0, scale: 1 }}
+              transition={{ type: 'spring', delay: 0.1 }}
+              className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center shrink-0 border border-white/30 text-3xl"
+            >
+              🎉
+            </motion.div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="font-display text-2xl font-black text-white">Khana Order Placed!</h2>
+                <button
+                  type="button"
+                  onClick={playOrderSuccessChime}
+                  title="Replay Celebration Sound"
+                  className="p-1 rounded-lg bg-white/20 hover:bg-white/30 text-white transition-colors cursor-pointer"
+                >
+                  <Volume2 size={15} />
+                </button>
+              </div>
+              <p className="text-xs text-emerald-100 mt-1">
+                Order #{confirmed.order_id.slice(0, 8)} · Placed at <strong className="text-white">{confirmed.order_time}</strong> (Your Local Device Time)
+              </p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* How Much You Saved Festive Banner */}
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.15 }}
+          className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white p-5 rounded-3xl shadow-lg shadow-orange-500/15 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+        >
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-xs flex items-center justify-center text-2xl shrink-0">
+              🎁
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] uppercase font-black tracking-wider bg-white/25 px-2.5 py-0.5 rounded-full text-white">
+                  Festive Zaika Savings
+                </span>
+              </div>
+              <h3 className="text-xl font-display font-black text-white mt-1">
+                You saved ₹{totalSavings} on this order!
+              </h3>
+              <p className="text-xs text-orange-100">
+                ₹{deliveryFeeWaived} Free Delivery waived + ₹{chefFestiveDiscount} Chef's Festive Promo applied
+              </p>
+            </div>
+          </div>
+
+          <div className="self-start sm:self-auto px-4 py-2 bg-white/20 backdrop-blur-md rounded-2xl border border-white/30 text-right">
+            <p className="text-[10px] uppercase font-bold text-orange-100">Total Paid</p>
+            <p className="text-lg font-black text-white">₹{total.toLocaleString('en-IN')}</p>
+          </div>
+        </motion.div>
+
+        {/* Live Delivery Countdown Timer */}
+        <DeliveryCountdownTimer
+          totalMinutes={pred?.predicted_delivery_time_min || 30}
+          estimatedArrival={confirmed.estimated_arrival_time}
+        />
+
+        {/* 3D Map Transit & Timing Summary Card */}
         <div className="bg-[#FAF7F2] p-5 rounded-3xl border border-[#ECE4D8] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="p-3 bg-orange-600/10 text-orange-600 rounded-2xl">
@@ -111,23 +333,31 @@ export default function Checkout() {
             </div>
             <div>
               <p className="text-xs uppercase font-extrabold text-[#938376] tracking-wider">
-                Virtual 3D Map Route Confirmed
+                Virtual 3D Route & Time Confirmed
               </p>
               <h4 className="text-sm font-black text-[#191411]">
                 {restaurant_name || 'Restaurant Hub'} ➔ {selectedMapLocation?.landmark || 'Drop-off Spot'}
               </h4>
               <p className="text-[11px] text-[#6E6157] mt-0.5">
-                Dispatch point linked to 3D virtual coordinates (X: {Math.round(selectedMapLocation?.x || 0)}, Z: {Math.round(selectedMapLocation?.z || 0)})
+                Original Time: <strong>{confirmed.order_time}</strong> · Window: <span className="font-semibold text-amber-800">{confirmed.time_of_day}</span> ({confirmed.traffic_level} Traffic)
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 self-start sm:self-auto">
-            <div className="px-4 py-2 bg-white border border-[#ECE4D8] rounded-xl text-center shadow-xs">
+          <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+            <div className="px-3.5 py-2 bg-white border border-[#ECE4D8] rounded-xl text-center shadow-xs">
               <p className="text-[10px] uppercase font-bold text-[#938376]">Actual Distance</p>
-              <p className="text-lg font-black text-orange-600 flex items-center justify-center gap-1">
-                <Navigation size={14} className="fill-orange-500 text-orange-500" />
+              <p className="text-base font-black text-orange-600 flex items-center justify-center gap-1">
+                <Navigation size={13} className="fill-orange-500 text-orange-500" />
                 {confirmed.distance_km || distanceKm} km
+              </p>
+            </div>
+
+            <div className="px-3.5 py-2 bg-white border border-[#ECE4D8] rounded-xl text-center shadow-xs">
+              <p className="text-[10px] uppercase font-bold text-[#938376]">Expected Arrival</p>
+              <p className="text-base font-black text-emerald-600 flex items-center justify-center gap-1">
+                <Clock size={13} />
+                {confirmed.estimated_arrival_time}
               </p>
             </div>
           </div>
@@ -142,7 +372,7 @@ export default function Checkout() {
                   <Clock className="w-5 h-5" /> Zaika AI Delivery Estimate
                 </h3>
                 <p className="text-orange-100 text-xs mt-0.5">
-                  Calculated with 7-factor linear regression ML model using your exact {confirmed.distance_km || distanceKm} km 3D route
+                  Calculated with 7-factor linear regression ML model using your exact {confirmed.distance_km || distanceKm} km 3D route and {confirmed.time_of_day} time factors
                 </p>
               </div>
               <span className="hidden sm:inline-block px-3 py-1 bg-white/20 text-white rounded-full text-xs font-bold backdrop-blur-xs">
@@ -158,6 +388,9 @@ export default function Checkout() {
                   <p className="text-4xl font-display font-black text-orange-600">
                     {Math.round(pred.predicted_delivery_time_min)}
                     <span className="text-lg font-medium text-[#6E6157] ml-1">min</span>
+                  </p>
+                  <p className="text-[11px] text-emerald-700 font-bold mt-1">
+                    Clock ETA: {confirmed.estimated_arrival_time}
                   </p>
                 </div>
                 <div className="bg-[#FAF7F2] rounded-2xl p-4 text-center border border-[#ECE4D8]">
@@ -360,9 +593,31 @@ export default function Checkout() {
           ))}
         </div>
 
-        <div className="flex justify-between items-baseline font-bold">
+        <div className="space-y-2 pt-1 border-t border-[#ECE4D8]/60 text-xs">
+          <div className="flex justify-between text-slate-500">
+            <span>Item Subtotal</span>
+            <span>₹{total.toLocaleString('en-IN')}</span>
+          </div>
+          <div className="flex justify-between text-emerald-700 font-medium">
+            <span>Delivery Fee</span>
+            <span className="line-through text-slate-400">₹50</span>
+            <span className="font-bold text-emerald-600">FREE</span>
+          </div>
+          <div className="flex justify-between text-emerald-700 font-medium">
+            <span>Festive Chef Promo (12%)</span>
+            <span className="font-bold text-emerald-600">-₹{chefFestiveDiscount}</span>
+          </div>
+        </div>
+
+        <div className="flex justify-between items-baseline font-bold pt-2 border-t border-[#ECE4D8]">
           <span className="text-xs uppercase text-[#938376]">Total Amount</span>
           <span className="font-display text-2xl font-black text-orange-600">₹{total.toLocaleString('en-IN')}</span>
+        </div>
+
+        <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-200 text-center">
+          <p className="text-xs font-bold text-emerald-800">
+            🎉 You save ₹{totalSavings} on this order!
+          </p>
         </div>
       </div>
     </div>
