@@ -17,6 +17,8 @@ class PlaceOrderRequest(BaseModel):
     items: List[OrderItemInput]
     delivery_address: str
     payment_method: str = "cash"
+    distance_km: Optional[float] = None
+    user_location: Optional[Dict[str, float]] = None
     
 class OrderStatusUpdate(BaseModel):
     status: str
@@ -56,26 +58,31 @@ def place_order(request: PlaceOrderRequest, current_user: dict = Depends(get_cur
                 "price_at_time": menu_items_cache[item.menu_item_id]["price"]
             }).execute()
 
-        # Generate Delivery Prediction
+        # Generate Delivery Prediction using actual 3D map distance
         rest_res = supabase.table("restaurants").select("preparation_time_min").eq("id", request.restaurant_id).single().execute()
-        prep_time = float(rest_res.data.get("preparation_time_min", 15))
+        prep_time = float(rest_res.data.get("preparation_time_min", 15)) if rest_res.data else 15.0
         
-        # Heuristics for realistic dummy params based on order
+        # Use exact virtual map distance if provided by client
+        if request.distance_km is not None and float(request.distance_km) > 0:
+            actual_distance = round(float(request.distance_km), 1)
+        else:
+            actual_distance = round(random.uniform(2.0, 6.5), 1)
+
         model_input = {
-            "Distance_km": round(random.uniform(1.5, 8.0), 1),
+            "Distance_km": actual_distance,
             "Weather": "Clear", 
             "Traffic_Level": "Medium",
             "Time_of_Day": "Evening",
             "Vehicle_Type": "Motorcycle",
             "Preparation_Time_min": prep_time,
-            "Courier_Experience_yrs": round(random.uniform(1.0, 5.0), 1)
+            "Courier_Experience_yrs": round(random.uniform(1.5, 4.5), 1)
         }
         
         prediction_result = predict_delivery_time(model_input)
         
         db_payload = {
             "user_id": current_user["id"],
-            "distance_km": model_input["Distance_km"],
+            "distance_km": actual_distance,
             "weather": model_input["Weather"],
             "traffic_level": model_input["Traffic_Level"],
             "time_of_day": model_input["Time_of_Day"],
@@ -100,7 +107,8 @@ def place_order(request: PlaceOrderRequest, current_user: dict = Depends(get_cur
         return {
             "success": True, 
             "order_id": order_id,
-            "prediction": prediction_result
+            "prediction": prediction_result,
+            "distance_km": actual_distance
         }
     except Exception as e:
         import traceback
