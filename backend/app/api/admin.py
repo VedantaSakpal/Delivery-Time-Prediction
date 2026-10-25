@@ -281,3 +281,61 @@ def get_all_orders(current_admin: dict = Depends(get_current_admin), limit: int 
         return {"orders": response.data}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+class RejectApplicationRequest(BaseModel):
+    reason: str
+
+@router.get("/applications")
+def get_partner_applications(current_admin: dict = Depends(get_current_admin)):
+    try:
+        from app.database.partner_applications import get_all_applications
+        apps = get_all_applications()
+        pending_count = sum(1 for a in apps if a.get("status") == "pending_approval")
+        approved_count = sum(1 for a in apps if a.get("status") == "approved")
+        rejected_count = sum(1 for a in apps if a.get("status") == "rejected")
+        return {
+            "applications": apps,
+            "counts": {
+                "total": len(apps),
+                "pending": pending_count,
+                "approved": approved_count,
+                "rejected": rejected_count
+            }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.post("/applications/{app_id}/approve")
+def approve_partner_application(app_id: str, current_admin: dict = Depends(get_current_admin)):
+    try:
+        from app.database.partner_applications import approve_application
+        admin_email = current_admin.get("email", "admin@zaikapulse.com")
+        updated_app = approve_application(app_id, admin_email)
+        return {
+            "success": True,
+            "message": f"Successfully approved {updated_app.get('restaurant_name')}! Kitchen partner onboarded and starter menu generated.",
+            "application": updated_app
+        }
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.post("/applications/{app_id}/reject")
+def reject_partner_application(
+    app_id: str,
+    req: RejectApplicationRequest,
+    current_admin: dict = Depends(get_current_admin)
+):
+    try:
+        from app.database.partner_applications import reject_application
+        admin_email = current_admin.get("email", "admin@zaikapulse.com")
+        updated_app = reject_application(app_id, req.reason, admin_email)
+        return {
+            "success": True,
+            "message": f"Application for {updated_app.get('restaurant_name')} has been rejected.",
+            "application": updated_app
+        }
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+

@@ -13,6 +13,8 @@ import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import AdminLogin from './pages/auth/AdminLogin';
 import RestaurantLogin from './pages/auth/RestaurantLogin';
+import RestaurantRegister from './pages/auth/RestaurantRegister';
+
 
 // User Pages
 import Dashboard from './pages/user/Dashboard';
@@ -60,6 +62,9 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/restaurant/login" element={<RestaurantLogin />} />
+          <Route path="/restaurant/register" element={<RestaurantRegister />} />
+          <Route path="/restaurant/signup" element={<RestaurantRegister />} />
+
 
           {/* User Routes */}
           <Route path="/user" element={<ProtectedRoute><UserLayout /></ProtectedRoute>}>

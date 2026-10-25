@@ -13,7 +13,25 @@ class MenuItem(BaseModel):
     image_url: Optional[str] = None
     is_available: bool = True
 
+from datetime import datetime, timezone
 from app.database.restaurant_status import is_restaurant_terminated, clean_description
+from app.database.partner_applications import (
+    create_application, get_application_by_email, get_application_by_user,
+    load_applications, save_applications
+)
+
+class PartnerApplicationRequest(BaseModel):
+    owner_name: str
+    email: str
+    phone: str
+    password: str
+    restaurant_name: str
+    cuisine_type: str = "Authentic Indian"
+    address: str
+    description: str
+    preparation_time_min: int = 20
+    fssai_license: str
+    image_url: Optional[str] = None
 
 @router.get("/")
 def get_restaurants():
@@ -32,7 +50,132 @@ def get_restaurants():
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+@router.post("/apply")
+
+def apply_for_partnership(req: PartnerApplicationRequest):
+    email = req.email.strip().lower()
+    
+    # Check existing application
+    existing_app = get_application_by_email(email)
+    if existing_app:
+        if existing_app.get("status") == "pending_approval":
+            return {
+                "success": True,
+                "already_submitted": True,
+                "status": "pending_approval",
+                "message": "An application for this email is already under administrative review.",
+                "application": existing_app
+            }
+        elif existing_app.get("status") == "approved":
+            return {
+                "success": True,
+                "already_submitted": True,
+                "status": "approved",
+                "message": "This restaurant partner account is already approved. You can sign in directly!",
+                "application": existing_app
+            }
+        elif existing_app.get("status") == "rejected":
+            apps = load_applications()
+            app_id = existing_app["id"]
+            existing_app.update({
+                "owner_name": req.owner_name.strip(),
+                "phone": req.phone.strip(),
+                "restaurant_name": req.restaurant_name.strip(),
+                "cuisine_type": req.cuisine_type.strip(),
+                "address": req.address.strip(),
+                "description": req.description.strip(),
+                "preparation_time_min": int(req.preparation_time_min),
+                "fssai_license": req.fssai_license.strip(),
+                "image_url": req.image_url or existing_app.get("image_url"),
+                "status": "pending_approval",
+                "rejection_reason": None,
+                "applied_at": datetime.now(timezone.utc).isoformat(),
+                "reviewed_at": None,
+                "reviewed_by": None
+            })
+            apps[app_id] = existing_app
+            save_applications(apps)
+            return {
+                "success": True,
+                "message": "Your updated partner application has been resubmitted for administrative review.",
+                "application": existing_app
+            }
+
+    # If no existing application, create user in Supabase Auth
+    user_id = None
+    try:
+        prof_res = supabase.table("profiles").select("id").eq("email", email).execute()
+        if prof_res.data and len(prof_res.data) > 0:
+            user_id = prof_res.data[0]["id"]
+        else:
+            auth_user = supabase.auth.admin.create_user({
+                "email": email,
+                "password": req.password,
+                "email_confirm": True,
+                "user_metadata": {
+                    "full_name": req.owner_name.strip(),
+                    "role": "restaurant_applicant"
+                }
+            })
+            if auth_user and auth_user.user:
+                user_id = auth_user.user.id
+                try:
+                    supabase.table("profiles").upsert({
+                        "id": user_id,
+                        "email": email,
+                        "full_name": req.owner_name.strip(),
+                        "role": "restaurant_applicant"
+                    }).execute()
+                except Exception as p_err:
+                    print("Notice profile upsert:", p_err)
+    except Exception as auth_err:
+        err_msg = str(auth_err).lower()
+        if "already registered" in err_msg or "exists" in err_msg:
+            try:
+                prof_res = supabase.table("profiles").select("id").eq("email", email).execute()
+                if prof_res.data and len(prof_res.data) > 0:
+                    user_id = prof_res.data[0]["id"]
+            except Exception:
+                pass
+        if not user_id:
+            raise HTTPException(status_code=400, detail=f"Authentication account error: {str(auth_err)}")
+
+    app_payload = {
+        "user_id": user_id,
+        "owner_name": req.owner_name.strip(),
+        "email": email,
+        "phone": req.phone.strip(),
+        "restaurant_name": req.restaurant_name.strip(),
+        "cuisine_type": req.cuisine_type.strip(),
+        "address": req.address.strip(),
+        "description": req.description.strip(),
+        "preparation_time_min": int(req.preparation_time_min),
+        "fssai_license": req.fssai_license.strip(),
+        "image_url": req.image_url or "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80",
+    }
+    new_app = create_application(app_payload)
+    return {
+        "success": True,
+        "message": "Application submitted successfully! Your culinary and FSSAI credentials will be verified by the Zaika Admin team within 24-48 hours.",
+        "application": new_app
+    }
+
+@router.get("/application-status")
+def check_application_status(email: Optional[str] = None):
+    if not email:
+        return {"status": "none", "application": None}
+    
+    app = get_application_by_email(email.strip().lower())
+    if not app:
+        return {"status": "none", "application": None}
+    
+    return {
+        "status": app.get("status", "none"),
+        "application": app
+    }
+
 @router.get("/{restaurant_id}")
+
 def get_restaurant(restaurant_id: str):
     if restaurant_id == "me":
         return get_restaurant_dashboard()

@@ -1093,9 +1093,14 @@ export default function Landing() {
                   <span>Restaurant Partner Login</span>
                   <ArrowRight className="w-4 h-4" />
                 </Link>
-                <p className="text-[11px] text-center text-[#938376] mt-3">Partner with ZaikaPulse</p>
+                <div className="text-center mt-3">
+                  <Link to="/restaurant/register" className="text-xs font-bold text-amber-700 hover:underline">
+                    Want to list your kitchen? Become a Partner →
+                  </Link>
+                </div>
               </div>
             </div>
+
 
             {/* PORTAL 3: FLEET & PLATFORM ADMIN */}
             <div className="bg-[#191411] text-white rounded-3xl p-8 border border-stone-800 shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col justify-between">

@@ -1,0 +1,22 @@
+{
+  "f05dfb2e-abe7-42af-9efe-cd538736cd14": {
+    "id": "f05dfb2e-abe7-42af-9efe-cd538736cd14",
+    "user_id": "09fbc925-c2e6-4619-a5bf-2f857e2faaaa",
+    "owner_name": "Kunal Kapur",
+    "email": "kunal.kapur.test@zaika.com",
+    "phone": "+91 99887 76655",
+    "restaurant_name": "Kunal Awadhi Rasoi",
+    "cuisine_type": "Hyderabadi Biryani & Kebabs",
+    "address": "Plot 45, Heritage Enclave, Pune, Maharashtra 411006",
+    "description": "Dum cooked Lucknowi and Awadhi delicacies infused with royal aromatics and heritage spices.",
+    "preparation_time_min": 22,
+    "fssai_license": "11521018009988",
+    "image_url": "https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&w=800&q=80",
+    "status": "pending_approval",
+    "rejection_reason": null,
+    "applied_at": "2026-10-25T10:58:22.426105+00:00",
+    "reviewed_at": null,
+    "reviewed_by": null,
+    "restaurant_id": null
+  }
+}
