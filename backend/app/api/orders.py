@@ -75,7 +75,6 @@ def place_order(request: PlaceOrderRequest, current_user: dict = Depends(get_cur
         
         db_payload = {
             "user_id": current_user["id"],
-            "order_id": order_id,
             "distance_km": model_input["Distance_km"],
             "weather": model_input["Weather"],
             "traffic_level": model_input["Traffic_Level"],
@@ -90,7 +89,13 @@ def place_order(request: PlaceOrderRequest, current_user: dict = Depends(get_cur
             "reliability": prediction_result["reliability"],
             "explanation": prediction_result["explanation"]
         }
-        supabase.table("predictions").insert(db_payload).execute()
+        
+        # Try inserting with order_id (if schema has order_id as uuid); fallback if it's bigint
+        try:
+            supabase.table("predictions").insert({**db_payload, "order_id": order_id}).execute()
+        except Exception as pred_err:
+            print(f"Notice: could not link prediction with order_id ({pred_err}). Saving prediction without order_id.")
+            supabase.table("predictions").insert(db_payload).execute()
 
         return {
             "success": True, 
@@ -113,10 +118,12 @@ def get_my_orders(current_user: dict = Depends(get_current_user)):
 @router.get("/{order_id}/prediction")
 def get_order_prediction(order_id: str, current_user: dict = Depends(get_current_user)):
     try:
-        res = supabase.table("predictions").select("*").eq("order_id", order_id).single().execute()
-        return {"prediction": res.data}
-    except Exception as e:
-         raise HTTPException(status_code=404, detail="Prediction not found for this order")
+        res = supabase.table("predictions").select("*").eq("order_id", order_id).execute()
+        if res.data and len(res.data) > 0:
+            return {"prediction": res.data[0]}
+        return {"prediction": None}
+    except Exception:
+        return {"prediction": None}
 
 @router.patch("/{order_id}/status")
 def update_order_status(order_id: str, update: OrderStatusUpdate, current_user: dict = Depends(get_current_user)):
