@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { supabase } from '../../utils/supabase';
+import api from '../../services/api';
 import {
   Database, Layers, Network, Table, Download, Search, RefreshCw,
   TrendingUp, AlertCircle, CheckCircle2, Filter, ChevronLeft, ChevronRight,
@@ -10,10 +9,6 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell
 } from 'recharts';
-
-const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/api\/?$/, '');
-
-const PIE_COLORS = ['#ea580c', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
 
 export default function AdminWarehouse() {
   const [activeTab, setActiveTab] = useState('schema'); // 'schema' | 'wrangling' | 'mining' | 'explorer'
@@ -32,19 +27,13 @@ export default function AdminWarehouse() {
   const [search, setSearch] = useState('');
   const [dataLoading, setDataLoading] = useState(false);
 
-  const getToken = async () => {
-    const { data: session } = await supabase.auth.getSession();
-    return session?.session?.access_token;
-  };
-
   const fetchMetadata = async () => {
     setLoading(true);
     setError(null);
     try {
-      const token = await getToken();
       const [schemaRes, miningRes] = await Promise.all([
-        axios.get(`${API_URL}/api/warehouse/schema`, { headers: { Authorization: `Bearer ${token}` } }),
-        axios.get(`${API_URL}/api/warehouse/mining`, { headers: { Authorization: `Bearer ${token}` } })
+        api.get('/warehouse/schema'),
+        api.get('/warehouse/mining')
       ]);
       setSchema(schemaRes.data);
       setMining(miningRes.data);
@@ -59,10 +48,8 @@ export default function AdminWarehouse() {
   const fetchExplorerData = async () => {
     setDataLoading(true);
     try {
-      const token = await getToken();
-      const res = await axios.get(`${API_URL}/api/warehouse/data`, {
-        params: { dataset, page: dataPage, page_size: pageSize, search: search || undefined },
-        headers: { Authorization: `Bearer ${token}` }
+      const res = await api.get('/warehouse/data', {
+        params: { dataset, page: dataPage, page_size: pageSize, search: search || undefined }
       });
       setDataRows(res.data.rows || []);
       setDataCols(res.data.columns || []);
@@ -92,9 +79,8 @@ export default function AdminWarehouse() {
 
   const handleExportCSV = async () => {
     try {
-      const token = await getToken();
-      const res = await axios.get(`${API_URL}/api/warehouse/export?dataset=${dataset}`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const res = await api.get('/warehouse/export', {
+        params: { dataset },
         responseType: 'blob'
       });
       const url = window.URL.createObjectURL(new Blob([res.data]));

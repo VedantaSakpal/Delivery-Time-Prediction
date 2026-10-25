@@ -1,9 +1,17 @@
-from fastapi import APIRouter, Depends, HTTPException
-from typing import List, Dict
+from fastapi import APIRouter, Depends, HTTPException, Body
+from typing import List, Dict, Optional, Any
+from pydantic import BaseModel
+import pandas as pd
 from app.api.deps import get_current_admin
 from app.database.supabase import supabase
+from app.database.restaurant_status import (
+    is_restaurant_terminated, terminate_partnership, reinstate_partnership, clean_description
+)
 
 router = APIRouter()
+
+class TerminationRequest(BaseModel):
+    reason: str
 
 @router.get("/dashboard")
 def get_dashboard_stats(current_admin: dict = Depends(get_current_admin)):
@@ -108,11 +116,157 @@ def get_model_info(current_admin: dict = Depends(get_current_admin)):
 @router.get("/restaurants")
 def get_all_restaurants(current_admin: dict = Depends(get_current_admin)):
     try:
-        response = supabase.table("restaurants") \
+        rest_resp = supabase.table("restaurants") \
             .select("*, profiles(full_name, email)") \
             .order("created_at", desc=True) \
             .execute()
-        return {"restaurants": response.data}
+        restaurants = rest_resp.data or []
+
+        orders_resp = supabase.table("orders").select("id, restaurant_id, total_amount, status").execute()
+        orders = orders_resp.data or []
+        df_orders = pd.DataFrame(orders)
+        if not df_orders.empty:
+            df_orders['total_amount'] = pd.to_numeric(df_orders['total_amount'], errors='coerce').fillna(0.0)
+
+        total_platform_revenue = 0.0
+        total_delivered_all = 0
+        total_rejected_all = 0
+        total_orders_all = len(orders)
+
+        enriched_restaurants = []
+        active_count = 0
+        terminated_count = 0
+
+        for r in restaurants:
+            rid = r["id"]
+            is_term, term_reason, term_at = is_restaurant_terminated(rid, r.get("description"))
+            if is_term:
+                terminated_count += 1
+                partnership_status = "terminated"
+            else:
+                active_count += 1
+                partnership_status = "active"
+
+            if not df_orders.empty:
+                sub = df_orders[df_orders['restaurant_id'] == rid]
+                o_count = int(len(sub))
+                revenue = round(float(sub['total_amount'].sum()), 2)
+                delivered = int(len(sub[sub['status'].isin(['delivered', 'completed'])]))
+                rejected = int(len(sub[sub['status'].isin(['rejected', 'cancelled'])]))
+                active_o = int(len(sub[~sub['status'].isin(['delivered', 'completed', 'rejected', 'cancelled'])]))
+                fulfillment_rate = round((delivered / o_count * 100), 1) if o_count > 0 else 0.0
+                rejection_rate = round((rejected / o_count * 100), 1) if o_count > 0 else 0.0
+                avg_order_value = round((revenue / o_count), 2) if o_count > 0 else 0.0
+            else:
+                o_count = 0
+                revenue = 0.0
+                delivered = 0
+                rejected = 0
+                active_o = 0
+                fulfillment_rate = 0.0
+                rejection_rate = 0.0
+                avg_order_value = 0.0
+
+            total_platform_revenue += revenue
+            total_delivered_all += delivered
+            total_rejected_all += rejected
+
+            r_data = {
+                **r,
+                "clean_description": clean_description(r.get("description")),
+                "is_terminated": is_term,
+                "partnership_status": partnership_status,
+                "termination_reason": term_reason,
+                "terminated_at": term_at,
+                "stats": {
+                    "total_orders": o_count,
+                    "total_revenue": revenue,
+                    "delivered_orders": delivered,
+                    "rejected_orders": rejected,
+                    "active_orders": active_o,
+                    "fulfillment_rate": fulfillment_rate,
+                    "rejection_rate": rejection_rate,
+                    "avg_order_value": avg_order_value
+                }
+            }
+            enriched_restaurants.append(r_data)
+
+        platform_summary = {
+            "total_restaurants": len(restaurants),
+            "active_restaurants": active_count,
+            "terminated_restaurants": terminated_count,
+            "total_platform_revenue": round(total_platform_revenue, 2),
+            "total_platform_orders": total_orders_all,
+            "total_delivered_orders": total_delivered_all,
+            "total_rejected_orders": total_rejected_all,
+            "overall_fulfillment_rate": round((total_delivered_all / total_orders_all * 100), 1) if total_orders_all > 0 else 0.0
+        }
+
+        return {
+            "restaurants": enriched_restaurants,
+            "summary": platform_summary
+        }
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.post("/restaurants/{restaurant_id}/terminate")
+def terminate_restaurant(
+    restaurant_id: str,
+    req: TerminationRequest,
+    current_admin: dict = Depends(get_current_admin)
+):
+    try:
+        res = supabase.table("restaurants").select("*").eq("id", restaurant_id).single().execute()
+        if not res.data:
+            raise HTTPException(status_code=404, detail="Restaurant not found")
+
+        r_data = res.data
+        admin_email = current_admin.get("email", "admin@zaikapulse.com")
+        term_info = terminate_partnership(restaurant_id, req.reason, admin_email)
+
+        curr_desc = clean_description(r_data.get("description"))
+        new_desc = f"[PARTNERSHIP_TERMINATED: {req.reason.strip()}] {curr_desc}".strip()
+        try:
+            supabase.table("restaurants").update({"description": new_desc}).eq("id", restaurant_id).execute()
+        except Exception as upd_err:
+            print("Notice: could not update description tag in database:", upd_err)
+
+        return {
+            "success": True,
+            "restaurant_id": restaurant_id,
+            "partnership_status": "terminated",
+            "reason": req.reason,
+            "termination_info": term_info
+        }
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.post("/restaurants/{restaurant_id}/reinstate")
+def reinstate_restaurant(
+    restaurant_id: str,
+    current_admin: dict = Depends(get_current_admin)
+):
+    try:
+        res = supabase.table("restaurants").select("*").eq("id", restaurant_id).single().execute()
+        if not res.data:
+            raise HTTPException(status_code=404, detail="Restaurant not found")
+
+        r_data = res.data
+        reinstate_partnership(restaurant_id)
+
+        curr_desc = clean_description(r_data.get("description"))
+        try:
+            supabase.table("restaurants").update({"description": curr_desc}).eq("id", restaurant_id).execute()
+        except Exception as upd_err:
+            print("Notice: could not update description tag in database:", upd_err)
+
+        return {
+            "success": True,
+            "restaurant_id": restaurant_id,
+            "partnership_status": "active"
+        }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 

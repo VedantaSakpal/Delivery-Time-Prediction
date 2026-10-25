@@ -75,9 +75,19 @@ class PlaceOrderRequest(BaseModel):
 class OrderStatusUpdate(BaseModel):
     status: str
 
+from app.database.restaurant_status import is_restaurant_terminated
+
 @router.post("/")
 def place_order(request: PlaceOrderRequest, current_user: dict = Depends(get_current_user)):
     try:
+        # Verify restaurant is not terminated
+        is_term, term_reason, _ = is_restaurant_terminated(request.restaurant_id)
+        if is_term:
+            raise HTTPException(
+                status_code=400,
+                detail=f"This kitchen partner is currently terminated ({term_reason}) and cannot accept new orders."
+            )
+
         # Calculate total and get menu items
         total_amount = 0
         menu_items_cache = {}

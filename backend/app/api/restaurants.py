@@ -13,11 +13,22 @@ class MenuItem(BaseModel):
     image_url: Optional[str] = None
     is_available: bool = True
 
+from app.database.restaurant_status import is_restaurant_terminated, clean_description
+
 @router.get("/")
 def get_restaurants():
     try:
         response = supabase.table("restaurants").select("*").execute()
-        return {"restaurants": response.data}
+        restaurants = []
+        for r in (response.data or []):
+            is_term, term_reason, _ = is_restaurant_terminated(r["id"], r.get("description"))
+            restaurants.append({
+                **r,
+                "clean_description": clean_description(r.get("description")),
+                "is_terminated": is_term,
+                "termination_reason": term_reason
+            })
+        return {"restaurants": restaurants}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
