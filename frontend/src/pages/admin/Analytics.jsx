@@ -8,7 +8,13 @@ import {
   TrendingUp,
   BarChart3,
   Layers,
-  ArrowUpRight
+  ArrowUpRight,
+  Scale,
+  Activity,
+  Navigation,
+  Banknote,
+  CreditCard,
+  Clock
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
@@ -89,6 +95,26 @@ export default function Analytics() {
       : ordersOlap?.by_month || [];
 
   const totalRevenue = ordersOlap?.kpis?.total_revenue || 0;
+
+  // Real Unit Economics & Basket Analytics extracted from live database
+  const basketSegments = ordersOlap?.basket_segments || [];
+  const timeWindows = ordersOlap?.time_windows || [];
+  const paymentEconomics = ordersOlap?.payment_economics || [];
+  const unitEconomics = ordersOlap?.unit_economics || {};
+
+  const codRecord = paymentEconomics.find(
+    (p) => p.payment_method === 'cash_on_delivery' || p.payment_method === 'cash'
+  );
+  const codShare = codRecord ? codRecord.volume_share : 0;
+  const digitalShare = codRecord ? (100 - codShare).toFixed(1) : 0;
+
+  const formatPaymentName = (method) => {
+    if (!method) return 'Unknown';
+    if (method === 'cash_on_delivery' || method === 'cash') return 'Cash on Delivery (COD)';
+    if (method === 'card') return 'Credit / Debit Card';
+    if (method === 'upi') return 'UPI (Instant)';
+    return method.replace(/_/g, ' ').toUpperCase();
+  };
 
   return (
     <div className="space-y-6">
@@ -200,7 +226,7 @@ export default function Analytics() {
                 <div>
                   <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Revenue</p>
                   <h3 className="text-2xl font-extrabold text-emerald-600 mt-1">
-                    ${(ordersOlap?.kpis?.total_revenue || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    ₹{(ordersOlap?.kpis?.total_revenue || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </h3>
                   <span className="text-xs font-medium text-slate-400 mt-1 block">Gross platform volume</span>
                 </div>
@@ -279,12 +305,12 @@ export default function Analytics() {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h3 className="text-base font-bold text-slate-800">
-                    Total Revenue ($) ({granularity === 'day' ? 'Daily' : granularity === 'week' ? 'Weekly' : 'Monthly'})
+                    Total Revenue (₹) ({granularity === 'day' ? 'Daily' : granularity === 'week' ? 'Weekly' : 'Monthly'})
                   </h3>
                   <p className="text-xs text-slate-500">Gross revenue generated across time periods</p>
                 </div>
                 <span className="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-full">
-                  Revenue ($)
+                  Revenue (₹)
                 </span>
               </div>
               <div className="h-72">
@@ -314,6 +340,267 @@ export default function Analytics() {
                     />
                   </AreaChart>
                 </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+
+          {/* ======================================================== */}
+          {/* Real Unit Economics & Order Basket Numbers (Option 4)    */}
+          {/* ======================================================== */}
+          <div className="space-y-6 pt-2">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-200 pb-3">
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                  <Scale className="text-amber-600" size={20} />
+                  Order Basket & Unit Economics Numbers
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Descriptive statistics, ticket size segmentation, and transit revenue efficiency derived from {ordersOlap?.kpis?.total_orders || 0} recorded orders
+                </p>
+              </div>
+              <span className="self-start sm:self-auto text-xs font-semibold px-3 py-1 bg-amber-50 text-amber-800 border border-amber-200 rounded-full flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                Live Database Computed
+              </span>
+            </div>
+
+            {/* 4 Statistical & Unit Economics Metric Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-slate-300 transition-colors">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Median Basket (P50)</p>
+                    <h3 className="text-2xl font-extrabold text-slate-900 mt-1">
+                      ₹{Number(unitEconomics.median_order_value || 0).toFixed(2)}
+                    </h3>
+                    <p className="text-xs text-slate-500 mt-1">
+                      Range: <span className="font-semibold text-slate-700">₹{Number(unitEconomics.min_order_value || 0).toFixed(2)}</span> – <span className="font-semibold text-slate-700">₹{Number(unitEconomics.max_order_value || 0).toFixed(2)}</span>
+                    </p>
+                  </div>
+                  <div className="p-3 bg-amber-50 text-amber-600 rounded-xl">
+                    <Scale size={24} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-slate-300 transition-colors">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Basket Std Dev (σ)</p>
+                    <h3 className="text-2xl font-extrabold text-violet-700 mt-1">
+                      ₹{Number(unitEconomics.std_dev_order_value || 0).toFixed(2)}
+                    </h3>
+                    <p className="text-xs text-slate-500 mt-1">
+                      Coeff. of Var:{' '}
+                      <span className="font-semibold text-slate-700">
+                        {ordersOlap?.kpis?.avg_order_value
+                          ? ((unitEconomics.std_dev_order_value / ordersOlap.kpis.avg_order_value) * 100).toFixed(1)
+                          : 0}%
+                      </span>
+                    </p>
+                  </div>
+                  <div className="p-3 bg-violet-50 text-violet-600 rounded-xl">
+                    <Activity size={24} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-slate-300 transition-colors">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Revenue / Transit Km</p>
+                    <h3 className="text-2xl font-extrabold text-sky-600 mt-1">
+                      ₹{Number(unitEconomics.revenue_per_km || 0).toFixed(2)} <span className="text-xs text-slate-400 font-normal">/km</span>
+                    </h3>
+                    <p className="text-xs text-slate-500 mt-1">
+                      Avg distance:{' '}
+                      <span className="font-semibold text-slate-700">{unitEconomics.avg_distance_km || 0} km</span>
+                    </p>
+                  </div>
+                  <div className="p-3 bg-sky-50 text-sky-600 rounded-xl">
+                    <Navigation size={24} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-slate-300 transition-colors">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Cash vs Digital</p>
+                    <h3 className="text-2xl font-extrabold text-emerald-600 mt-1">
+                      {codShare}% <span className="text-xs text-slate-400 font-normal">COD</span>
+                    </h3>
+                    <p className="text-xs text-slate-500 mt-1">
+                      Digital Share:{' '}
+                      <span className="font-semibold text-emerald-700">{digitalShare}%</span>
+                    </p>
+                  </div>
+                  <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
+                    <Banknote size={24} />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Deep-Dive Grid: Basket Segmentation & Operational Windows */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Basket Size Segmentation */}
+              <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h4 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <ShoppingBag size={18} className="text-blue-600" />
+                        Ticket Size Segmentation
+                      </h4>
+                      <p className="text-xs text-slate-500">Distribution of orders across ticket value tiers</p>
+                    </div>
+                    <span className="text-xs font-semibold px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full">
+                      {ordersOlap?.kpis?.total_orders || 0} Orders Total
+                    </span>
+                  </div>
+
+                  <div className="space-y-4">
+                    {basketSegments.map((seg, idx) => {
+                      const colors = [
+                        { border: 'border-emerald-200', bg: 'bg-emerald-50', text: 'text-emerald-700', bar: 'bg-emerald-500' },
+                        { border: 'border-blue-200', bg: 'bg-blue-50', text: 'text-blue-700', bar: 'bg-blue-500' },
+                        { border: 'border-purple-200', bg: 'bg-purple-50', text: 'text-purple-700', bar: 'bg-purple-500' }
+                      ][idx % 3];
+
+                      return (
+                        <div key={idx} className="p-4 rounded-xl border border-slate-100 bg-slate-50/60">
+                          <div className="flex items-center justify-between mb-1.5">
+                            <div className="flex items-center gap-2">
+                              <span className={`text-xs font-bold px-2 py-0.5 rounded border ${colors.bg} ${colors.text} ${colors.border}`}>
+                                {seg.segment}
+                              </span>
+                              <span className="text-xs font-medium text-slate-500">({seg.range})</span>
+                            </div>
+                            <div className="text-right">
+                              <span className="text-sm font-bold text-slate-800">
+                                {seg.order_count} orders
+                              </span>
+                              <span className="text-xs text-slate-400 ml-1.5 font-medium">
+                                ({seg.volume_share}%)
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Progress bar comparing volume share */}
+                          <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden my-2">
+                            <div
+                              className={`${colors.bar} h-2 rounded-full transition-all duration-500`}
+                              style={{ width: `${seg.volume_share}%` }}
+                            />
+                          </div>
+
+                          <div className="flex items-center justify-between text-xs text-slate-600 mt-2 pt-2 border-t border-slate-200/60">
+                            <div>
+                              Gross Volume: <span className="font-bold text-emerald-700">₹{Number(seg.total_revenue).toFixed(2)}</span>
+                              <span className="text-slate-400 ml-1">({seg.revenue_share}% GMV)</span>
+                            </div>
+                            <div>
+                              Mean Basket: <span className="font-bold text-slate-800">₹{Number(seg.avg_basket_value).toFixed(2)}</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* Operational Demand & Rush Windows */}
+              <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h4 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <Clock size={18} className="text-amber-600" />
+                        Operational Demand Windows
+                      </h4>
+                      <p className="text-xs text-slate-500">Real transaction volume by time of day</p>
+                    </div>
+                    <span className="text-xs font-semibold px-2.5 py-1 bg-amber-50 text-amber-700 rounded-full">
+                      24h Clock
+                    </span>
+                  </div>
+
+                  <div className="space-y-3">
+                    {timeWindows.map((tw, idx) => (
+                      <div key={idx} className="p-3.5 rounded-xl border border-slate-100 bg-slate-50/60">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs font-bold text-slate-800">
+                            {tw.window}
+                          </span>
+                          <div className="text-right">
+                            <span className="text-xs font-bold text-blue-700">
+                              {tw.order_count} orders
+                            </span>
+                            <span className="text-xs text-slate-400 ml-1">({tw.volume_share}%)</span>
+                          </div>
+                        </div>
+
+                        <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden my-1.5">
+                          <div
+                            className="bg-amber-500 h-1.5 rounded-full"
+                            style={{ width: `${tw.volume_share}%` }}
+                          />
+                        </div>
+
+                        <div className="flex items-center justify-between text-xs text-slate-500 mt-1">
+                          <span>
+                            Revenue: <span className="font-semibold text-slate-800">₹{Number(tw.total_revenue).toFixed(2)}</span> ({tw.revenue_share}%)
+                          </span>
+                          <span>
+                            Avg: <span className="font-semibold text-slate-800">₹{Number(tw.avg_order_value).toFixed(2)}</span>
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Payment Method Economics Card Grid */}
+            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h4 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <CreditCard size={18} className="text-emerald-600" />
+                    Payment Channel Unit Economics
+                  </h4>
+                  <p className="text-xs text-slate-500">Settlement method share, average ticket, and gross volume</p>
+                </div>
+                <span className="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-full">
+                  Real Gateway Distribution
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {paymentEconomics.map((pay, idx) => (
+                  <div key={idx} className="p-4 rounded-xl border border-slate-200 bg-slate-50/50">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-bold text-slate-700">
+                        {formatPaymentName(pay.payment_method)}
+                      </span>
+                      <span className="text-xs font-bold px-2 py-0.5 bg-white border border-slate-200 rounded text-slate-700">
+                        {pay.volume_share}%
+                      </span>
+                    </div>
+
+                    <div className="text-xl font-extrabold text-slate-900 mb-1">
+                      ₹{Number(pay.total_revenue).toFixed(2)}
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-200/60">
+                      <span>{pay.order_count} orders</span>
+                      <span>Avg Ticket: <strong className="text-slate-700">₹{Number(pay.avg_order_value).toFixed(2)}</strong></span>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
