@@ -61,5 +61,107 @@
     },
     "is_read": false,
     "created_at": "2026-10-25T11:08:14.829876+00:00"
+  },
+  "1c9d0755-8cad-48db-a5e8-3f0eb11931fc": {
+    "id": "1c9d0755-8cad-48db-a5e8-3f0eb11931fc",
+    "recipient_id": "cc276a1d-71eb-459a-b859-f44373dd45e7",
+    "role": "restaurant",
+    "title": "New Order Received! \ud83d\udd14",
+    "message": "Order #aa806cc5 received from vedantsakpal400@gmail.com for Rs. 360.00 (1 items).",
+    "type": "new_order",
+    "data": {
+      "order_id": "aa806cc5-ed5e-400d-81bb-784734387c35",
+      "restaurant_id": "6e9b3cc8-5e05-4e29-8596-6ddb03fa454a",
+      "restaurant_name": "Punjab Grill & Rasoi",
+      "amount": 360,
+      "items_count": 1,
+      "diner_name": "vedantsakpal400@gmail.com"
+    },
+    "is_read": false,
+    "created_at": "2026-10-25T11:20:39.009503+00:00"
+  },
+  "1b177527-5e81-4499-b811-e1ee90a265d9": {
+    "id": "1b177527-5e81-4499-b811-e1ee90a265d9",
+    "recipient_id": "84737edd-c3a7-42c2-bdf3-e9df699116ba",
+    "role": "user",
+    "title": "Order Confirmed! \ud83c\udf89",
+    "message": "Your order #aa806cc5 with Punjab Grill & Rasoi has been placed. Estimated arrival at ~05:34 PM.",
+    "type": "order_placed",
+    "data": {
+      "order_id": "aa806cc5-ed5e-400d-81bb-784734387c35",
+      "restaurant_id": "6e9b3cc8-5e05-4e29-8596-6ddb03fa454a",
+      "restaurant_name": "Punjab Grill & Rasoi",
+      "estimated_arrival": "05:34 PM",
+      "amount": 360
+    },
+    "is_read": false,
+    "created_at": "2026-10-25T11:20:39.013051+00:00"
+  },
+  "fd04a9ad-20d2-4350-8d44-69a3644a0d48": {
+    "id": "fd04a9ad-20d2-4350-8d44-69a3644a0d48",
+    "recipient_id": "admin",
+    "role": "admin",
+    "title": "New Platform Order \ud83d\udce6",
+    "message": "Order #aa806cc5 (Rs. 360.00) placed at Punjab Grill & Rasoi by vedantsakpal400@gmail.com.",
+    "type": "admin_order",
+    "data": {
+      "order_id": "aa806cc5-ed5e-400d-81bb-784734387c35",
+      "restaurant_id": "6e9b3cc8-5e05-4e29-8596-6ddb03fa454a",
+      "restaurant_name": "Punjab Grill & Rasoi",
+      "amount": 360
+    },
+    "is_read": false,
+    "created_at": "2026-10-25T11:20:39.031409+00:00"
+  },
+  "ed8307d1-4e31-4e63-9306-3c64f63aef07": {
+    "id": "ed8307d1-4e31-4e63-9306-3c64f63aef07",
+    "recipient_id": "cc276a1d-71eb-459a-b859-f44373dd45e7",
+    "role": "restaurant",
+    "title": "New Order Received! \ud83d\udd14",
+    "message": "Order #008d674d received from vedantsakpal400@gmail.com for Rs. 14.99 (1 items).",
+    "type": "new_order",
+    "data": {
+      "order_id": "008d674d-dcfb-46af-bfa1-1e1a1dcfb351",
+      "restaurant_id": "07179b77-e9ea-426a-ade3-50beab986685",
+      "restaurant_name": "Sakura Japanese Ramen & Sushi",
+      "amount": 14.99,
+      "items_count": 1,
+      "diner_name": "vedantsakpal400@gmail.com"
+    },
+    "is_read": false,
+    "created_at": "2026-10-25T11:21:04.300246+00:00"
+  },
+  "dece7ad0-28ec-4b59-998f-db91bcd4d0c1": {
+    "id": "dece7ad0-28ec-4b59-998f-db91bcd4d0c1",
+    "recipient_id": "84737edd-c3a7-42c2-bdf3-e9df699116ba",
+    "role": "user",
+    "title": "Order Confirmed! \ud83c\udf89",
+    "message": "Your order #008d674d with Sakura Japanese Ramen & Sushi has been placed. Estimated arrival at ~05:39 PM.",
+    "type": "order_placed",
+    "data": {
+      "order_id": "008d674d-dcfb-46af-bfa1-1e1a1dcfb351",
+      "restaurant_id": "07179b77-e9ea-426a-ade3-50beab986685",
+      "restaurant_name": "Sakura Japanese Ramen & Sushi",
+      "estimated_arrival": "05:39 PM",
+      "amount": 14.99
+    },
+    "is_read": false,
+    "created_at": "2026-10-25T11:21:04.300246+00:00"
+  },
+  "0c86c1eb-4568-4d68-915f-2d7f455d3f69": {
+    "id": "0c86c1eb-4568-4d68-915f-2d7f455d3f69",
+    "recipient_id": "admin",
+    "role": "admin",
+    "title": "New Platform Order \ud83d\udce6",
+    "message": "Order #008d674d (Rs. 14.99) placed at Sakura Japanese Ramen & Sushi by vedantsakpal400@gmail.com.",
+    "type": "admin_order",
+    "data": {
+      "order_id": "008d674d-dcfb-46af-bfa1-1e1a1dcfb351",
+      "restaurant_id": "07179b77-e9ea-426a-ade3-50beab986685",
+      "restaurant_name": "Sakura Japanese Ramen & Sushi",
+      "amount": 14.99
+    },
+    "is_read": false,
+    "created_at": "2026-10-25T11:21:04.320145+00:00"
   }
 }

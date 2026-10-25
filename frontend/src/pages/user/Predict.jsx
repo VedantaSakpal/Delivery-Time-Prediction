@@ -71,6 +71,8 @@ export default function Predict() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+  const [liveWeatherInfo, setLiveWeatherInfo] = useState(null);
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -267,9 +269,31 @@ export default function Predict() {
 
             {/* 4. Weather Condition */}
             <div className="space-y-2">
-              <label className="text-sm font-bold text-[#191411] flex items-center gap-1.5">
-                <Sun className="w-4 h-4 text-orange-600" /> Weather Condition
-              </label>
+              <div className="flex justify-between items-center text-sm font-bold text-[#191411]">
+                <label className="flex items-center gap-1.5">
+                  <Sun className="w-4 h-4 text-orange-600" /> Weather Condition
+                </label>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      const res = await api.get('/weather/live?city=Pune');
+                      if (res.data) {
+                        setFormData(prev => ({ ...prev, weather: res.data.condition }));
+                        setLiveWeatherInfo(res.data);
+                      }
+                    } catch (e) {
+                      console.warn('Live weather detect error:', e);
+                    }
+                  }}
+                  className="text-[11px] font-bold text-orange-600 hover:text-orange-700 bg-orange-50 hover:bg-orange-100 px-2 py-0.5 rounded-lg border border-orange-200 transition-colors flex items-center gap-1 cursor-pointer"
+                  title="Query Open-Meteo real-time atmospheric data"
+                >
+                  <Sparkles size={11} />
+                  <span>Auto-Detect Live Weather</span>
+                </button>
+              </div>
+
               <select
                 name="weather"
                 value={formData.weather}
@@ -279,10 +303,29 @@ export default function Predict() {
                 <option value="Clear">Clear (Optimal)</option>
                 <option value="Windy">Windy (+1.4 min)</option>
                 <option value="Foggy">Foggy (+2.2 min)</option>
-                <option value="Rainy">Rainy (+4.8 min)</option>
+                <option value="Rainy">Rainy (Monsoon +12m Safety Buffer)</option>
                 <option value="Stormy">Stormy (+8.5 min)</option>
               </select>
+
+              {liveWeatherInfo && (
+                <div className="text-[11px] text-stone-500 flex items-center gap-2 pt-0.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                  <span>Live {liveWeatherInfo.city}: {liveWeatherInfo.temperature_c}°C, {liveWeatherInfo.humidity}% Humidity ({liveWeatherInfo.description})</span>
+                </div>
+              )}
+
+              {/* Monsoon Alert Banner */}
+              {formData.weather === 'Rainy' && (
+                <div className="p-3 bg-amber-500/15 border-2 border-amber-500/80 rounded-2xl flex items-start gap-2.5 text-xs text-amber-950 font-bold">
+                  <CloudRain className="w-4 h-4 text-amber-700 shrink-0 mt-0.5 animate-bounce" />
+                  <div>
+                    <span className="block text-[10px] uppercase font-black tracking-wider text-amber-800">Monsoon Safety Active</span>
+                    <p className="mt-0.5 text-amber-950">🌧️ Monsoons in your area: Transit buffer increased by +12 mins for courier safety</p>
+                  </div>
+                </div>
+              )}
             </div>
+
 
             {/* 5. Traffic Level */}
             <div className="space-y-2">

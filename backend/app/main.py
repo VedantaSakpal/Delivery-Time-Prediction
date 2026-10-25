@@ -5,7 +5,7 @@ import os
 
 load_dotenv()
 
-from app.api import predictions, admin, analytics, olap, restaurants, orders, reports, warehouse, notifications
+from app.api import predictions, admin, analytics, olap, restaurants, orders, reports, warehouse, notifications, weather
 
 app = FastAPI(title="Delivery Time Prediction API")
 
@@ -27,6 +27,8 @@ for prefix in ["/api", ""]:
     app.include_router(reports.router, prefix=f"{prefix}/reports", tags=["Reports"], include_in_schema=(prefix == "/api"))
     app.include_router(warehouse.router, prefix=f"{prefix}/warehouse", tags=["Warehouse"], include_in_schema=(prefix == "/api"))
     app.include_router(notifications.router, prefix=f"{prefix}/notifications", tags=["Notifications"], include_in_schema=(prefix == "/api"))
+    app.include_router(weather.router, prefix=f"{prefix}/weather", tags=["Weather"], include_in_schema=(prefix == "/api"))
+
 
 
 @app.get("/")

@@ -5,10 +5,12 @@ import { supabase } from '../../utils/supabase';
 import {
   CreditCard, MapPin, Loader2, CheckCircle, Clock, ShieldCheck,
   ArrowRight, AlertTriangle, BarChart2, Navigation, Compass, Sparkles, Building2,
-  Gift, Volume2
+  Gift, Volume2, CloudRain
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Virtual3DMap from '../../components/Virtual3DMap';
+import WeatherWidget from '../../components/WeatherWidget';
+
 
 const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/api\/?$/, '');
 
@@ -147,6 +149,7 @@ export default function Checkout() {
   // 3D Virtual Map selection state
   const [selectedMapLocation, setSelectedMapLocation] = useState(null);
   const [distanceKm, setDistanceKm] = useState(3.5);
+  const [liveWeather, setLiveWeather] = useState(null);
 
   const handleLocationSelect = useCallback((loc) => {
     setSelectedMapLocation(loc);
@@ -200,7 +203,10 @@ export default function Checkout() {
         order_time:       now.toISOString(),
         local_hour:       localHour,
         local_minute:     localMinute,
-        local_time_str:   localTimeStr
+        local_time_str:   localTimeStr,
+        weather_condition: liveWeather?.condition,
+        city:             liveWeather?.city || 'Pune',
+        override_weather: liveWeather?.condition === 'Rainy' ? 'Rainy' : null
       };
 
       const res = await axios.post(`${API_URL}/api/orders/`, payload, {
@@ -217,7 +223,11 @@ export default function Checkout() {
         order_time: res.data.order_time || localTimeStr,
         estimated_arrival_time: res.data.estimated_arrival_time || res.data.prediction?.estimated_arrival_time,
         time_of_day: res.data.time_of_day || res.data.prediction?.time_of_day,
-        traffic_level: res.data.traffic_level || res.data.prediction?.traffic_level
+        traffic_level: res.data.traffic_level || res.data.prediction?.traffic_level,
+        weather: res.data.weather || liveWeather,
+        weather_warning: res.data.weather_warning,
+        is_raining: res.data.is_raining,
+        transit_buffer_min: res.data.transit_buffer_min
       });
     } catch (err) {
       alert(err.response?.data?.detail || 'Failed to place order.');
@@ -225,6 +235,7 @@ export default function Checkout() {
       setLoading(false);
     }
   };
+
 
   /* ── Order Confirmed Screen ── */
   if (confirmed) {
@@ -325,7 +336,35 @@ export default function Checkout() {
           estimatedArrival={confirmed.estimated_arrival_time}
         />
 
+        {/* Dynamic Monsoon Road Safety Warning Banner */}
+        {(confirmed.is_raining || confirmed.weather_warning) && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="p-5 rounded-3xl bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/15 border-2 border-amber-500/80 shadow-xs flex items-start gap-4"
+          >
+            <div className="p-3 bg-amber-100 text-amber-800 rounded-2xl shrink-0 mt-0.5">
+              <CloudRain className="w-6 h-6 text-amber-700 animate-bounce" />
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-200 text-amber-900">
+                  Monsoon Protocol Active
+                </span>
+                <span className="text-xs text-amber-800 font-bold">• Courier Road Safety</span>
+              </div>
+              <h4 className="text-sm font-black text-amber-950">
+                {confirmed.weather_warning || "🌧️ Monsoons in your area: Transit buffer increased by +12 mins for courier safety"}
+              </h4>
+              <p className="text-xs text-amber-900 leading-relaxed">
+                Atmospheric conditions in <strong>{confirmed.weather?.city || 'your area'}</strong> detected precipitation. The live countdown timer and clock ETA above already factor in this +12 min wet-road buffer.
+              </p>
+            </div>
+          </motion.div>
+        )}
+
         {/* 3D Map Transit & Timing Summary Card */}
+
         <div className="bg-[#FAF7F2] p-5 rounded-3xl border border-[#ECE4D8] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="p-3 bg-orange-600/10 text-orange-600 rounded-2xl">
@@ -523,10 +562,24 @@ export default function Checkout() {
             </p>
           </div>
 
-          {/* STEP 3: Payment Method */}
+          {/* STEP 3: Live Real-World Weather & Atmospheric Telemetry */}
+          <div className="space-y-2">
+            <label className="block text-xs font-bold text-[#191411] flex items-center gap-1.5">
+              <CloudRain size={14} className="text-blue-600" />
+              Step 3: Live Real-World Weather & Monsoon Conditions
+            </label>
+            <WeatherWidget
+              city="Pune"
+              onWeatherChange={(data) => setLiveWeather(data)}
+              showSimulationToggle={true}
+            />
+          </div>
+
+          {/* STEP 4: Payment Method */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-[#191411]">Step 3: Payment Method</label>
+            <label className="block text-xs font-bold text-[#191411]">Step 4: Payment Method</label>
             <div className="grid grid-cols-2 gap-3">
+
               {[
                 { val: 'cash', label: '💵 Cash on Delivery' },
                 { val: 'card', label: '📱 UPI / Card' },

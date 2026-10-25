@@ -71,9 +71,13 @@ class PlaceOrderRequest(BaseModel):
     local_hour: Optional[int] = None
     local_minute: Optional[int] = None
     local_time_str: Optional[str] = None
+    weather_condition: Optional[str] = None
+    city: Optional[str] = "Pune"
+    override_weather: Optional[str] = None
     
 class OrderStatusUpdate(BaseModel):
     status: str
+
 
 from app.database.restaurant_status import is_restaurant_terminated
 
@@ -138,17 +142,42 @@ def place_order(request: PlaceOrderRequest, current_user: dict = Depends(get_cur
         else:
             actual_distance = round(random.uniform(2.0, 6.5), 1)
 
+        # Fetch live real-world weather or use client selected/simulated condition
+        from app.services.weather_service import fetch_live_weather
+        weather_info = fetch_live_weather(
+            city=request.city or "Pune",
+            override_condition=request.override_weather or request.weather_condition
+        )
+        weather_condition = weather_info["condition"]
+        is_raining = weather_info["is_raining"]
+        transit_buffer = weather_info["transit_buffer_min"]
+        weather_warning = weather_info["warning_banner"]
+
         model_input = {
             "Distance_km": actual_distance,
-            "Weather": "Clear", 
+            "Weather": weather_condition, 
             "Traffic_Level": traffic_level,
             "Time_of_Day": time_of_day,
-            "Vehicle_Type": "Motorcycle",
+            "Vehicle_Type": "Bike",
             "Preparation_Time_min": prep_time,
             "Courier_Experience_yrs": round(random.uniform(1.5, 4.5), 1)
         }
         
         prediction_result = predict_delivery_time(model_input)
+
+        # Apply +12 min courier safety buffer during monsoon/rain
+        if is_raining:
+            prediction_result["predicted_delivery_time_min"] = round(prediction_result["predicted_delivery_time_min"] + transit_buffer, 2)
+            prediction_result["prediction_range"]["lower"] = round(prediction_result["prediction_range"]["lower"] + transit_buffer, 1)
+            prediction_result["prediction_range"]["upper"] = round(prediction_result["prediction_range"]["upper"] + transit_buffer, 1)
+            prediction_result["weather_warning"] = weather_warning
+            prediction_result["transit_buffer_min"] = transit_buffer
+            if "explanation" in prediction_result and isinstance(prediction_result["explanation"], list):
+                prediction_result["explanation"].insert(0, {
+                    "feature": "Monsoon Road Safety Buffer",
+                    "impact": transit_buffer,
+                    "direction": "increase"
+                })
         
         # Calculate expected clock arrival time using user's exact local time
         pred_min = float(prediction_result.get("predicted_delivery_time_min", 30))
@@ -163,11 +192,12 @@ def place_order(request: PlaceOrderRequest, current_user: dict = Depends(get_cur
         prediction_result["estimated_arrival_time"] = arrival_time_str
         prediction_result["time_of_day"] = time_of_day
         prediction_result["traffic_level"] = traffic_level
+        prediction_result["weather"] = weather_info
 
         db_payload = {
             "user_id": current_user["id"],
             "distance_km": actual_distance,
-            "weather": model_input["Weather"],
+            "weather": weather_condition,
             "traffic_level": model_input["Traffic_Level"],
             "time_of_day": model_input["Time_of_Day"],
             "vehicle_type": model_input["Vehicle_Type"],
@@ -180,6 +210,7 @@ def place_order(request: PlaceOrderRequest, current_user: dict = Depends(get_cur
             "reliability": prediction_result["reliability"],
             "explanation": prediction_result["explanation"]
         }
+
         
         # Try inserting with order_id (if schema has order_id as uuid); fallback if it's bigint
         try:
@@ -255,8 +286,14 @@ def place_order(request: PlaceOrderRequest, current_user: dict = Depends(get_cur
             "order_time": order_time_str,
             "estimated_arrival_time": arrival_time_str,
             "time_of_day": time_of_day,
-            "traffic_level": traffic_level
+            "traffic_level": traffic_level,
+            "weather": weather_info,
+            "weather_warning": weather_warning,
+            "weather_condition": weather_condition,
+            "is_raining": is_raining,
+            "transit_buffer_min": transit_buffer
         }
+
     except Exception as e:
         import traceback
         traceback.print_exc()
