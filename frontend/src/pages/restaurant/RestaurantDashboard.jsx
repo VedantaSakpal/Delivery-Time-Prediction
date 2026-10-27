@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import {
   Store, Clock, CheckCircle, Truck, XCircle,
-  BarChart2, ShoppingBag, TrendingUp, DollarSign, Package, FileText
+  BarChart2, ShoppingBag, TrendingUp, DollarSign, Package, FileText,
+  Calendar, Filter
 } from 'lucide-react';
 import { supabase } from '../../utils/supabase';
 import {
@@ -28,11 +29,13 @@ const STATUS_COLORS = {
 const PIE_COLORS = ['#f59e0b','#3b82f6','#f97316','#14b8a6','#6366f1','#22c55e','#ef4444'];
 
 export default function RestaurantDashboard() {
-  const [data,      setData]      = useState(null);
-  const [analytics, setAnalytics] = useState(null);
-  const [loading,   setLoading]   = useState(true);
-  const [tab,       setTab]       = useState('orders'); // 'orders' | 'analytics'
-  const [error,     setError]     = useState(null);
+  const [data,            setData]            = useState(null);
+  const [analytics,       setAnalytics]       = useState(null);
+  const [loading,         setLoading]         = useState(true);
+  const [tab,             setTab]             = useState('orders'); // 'orders' | 'analytics' | 'reports'
+  const [orderStatusTab,  setOrderStatusTab]  = useState('active'); // 'active' | 'completed' | 'declined' | 'all'
+  const [orderDateFilter, setOrderDateFilter] = useState('all');    // 'all' | 'today' | 'yesterday' | 'this_month'
+  const [error,           setError]           = useState(null);
 
   const getToken = async () => {
     const { data: session } = await supabase.auth.getSession();
@@ -92,9 +95,60 @@ export default function RestaurantDashboard() {
   );
   if (error) return <div className="p-8 text-red-500 font-medium">{error}</div>;
 
-  const pendingOrders    = data?.orders?.filter(o => o.status === 'pending') || [];
-  const activeOrders     = data?.orders?.filter(o => !['delivered','rejected'].includes(o.status) && o.status !== 'pending') || [];
-  const completedOrders  = data?.orders?.filter(o => o.status === 'delivered') || [];
+  // Date Filtering Helper
+  const filterByDate = (order, dateFilter) => {
+    if (dateFilter === 'all') return true;
+    if (!order.created_at) return true;
+    const orderDate = new Date(order.created_at);
+    const now = new Date();
+
+    if (dateFilter === 'today') {
+      return (
+        orderDate.getDate() === now.getDate() &&
+        orderDate.getMonth() === now.getMonth() &&
+        orderDate.getFullYear() === now.getFullYear()
+      );
+    }
+
+    if (dateFilter === 'yesterday') {
+      const yesterday = new Date(now);
+      yesterday.setDate(now.getDate() - 1);
+      return (
+        orderDate.getDate() === yesterday.getDate() &&
+        orderDate.getMonth() === yesterday.getMonth() &&
+        orderDate.getFullYear() === yesterday.getFullYear()
+      );
+    }
+
+    if (dateFilter === 'this_month') {
+      return (
+        orderDate.getMonth() === now.getMonth() &&
+        orderDate.getFullYear() === now.getFullYear()
+      );
+    }
+
+    return true;
+  };
+
+  const allOrders = data?.orders || [];
+  const dateFilteredOrders = allOrders.filter(o => filterByDate(o, orderDateFilter));
+
+  const activeOrdersList    = dateFilteredOrders.filter(o => !['delivered', 'completed', 'rejected', 'cancelled'].includes(o.status));
+  const pendingOrdersList   = activeOrdersList.filter(o => o.status === 'pending');
+  const kitchenOrdersList   = activeOrdersList.filter(o => o.status !== 'pending');
+  const completedOrdersList = dateFilteredOrders.filter(o => ['delivered', 'completed'].includes(o.status));
+  const declinedOrdersList  = dateFilteredOrders.filter(o => ['rejected', 'cancelled'].includes(o.status));
+
+  let displayedOrders = [];
+  if (orderStatusTab === 'active') {
+    displayedOrders = [...pendingOrdersList, ...kitchenOrdersList];
+  } else if (orderStatusTab === 'completed') {
+    displayedOrders = completedOrdersList;
+  } else if (orderStatusTab === 'declined') {
+    displayedOrders = declinedOrdersList;
+  } else {
+    displayedOrders = dateFilteredOrders;
+  }
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
@@ -111,21 +165,31 @@ export default function RestaurantDashboard() {
         </div>
 
         {/* Stats strip */}
-        <div className="flex gap-3 flex-wrap">
+        <div className="flex gap-2.5 flex-wrap">
           {[
-            { label: 'Pending',   value: pendingOrders.length,   color: 'bg-yellow-50 text-yellow-700' },
-            { label: 'Active',    value: activeOrders.length,    color: 'bg-blue-50 text-blue-700'     },
-            { label: 'Delivered', value: completedOrders.length, color: 'bg-green-50 text-green-700'   },
+            { label: 'Active',    tab: 'active',    value: allOrders.filter(o => !['delivered', 'completed', 'rejected', 'cancelled'].includes(o.status)).length, color: 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100' },
+            { label: 'Pending',   tab: 'active',    value: allOrders.filter(o => o.status === 'pending').length,   color: 'bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100' },
+            { label: 'Delivered', tab: 'completed', value: allOrders.filter(o => ['delivered', 'completed'].includes(o.status)).length, color: 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100' },
+            { label: 'Declined',  tab: 'declined',  value: allOrders.filter(o => ['rejected', 'cancelled'].includes(o.status)).length, color: 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100' },
           ].map(s => (
-            <div key={s.label} className={`${s.color} px-4 py-2 rounded-xl text-center min-w-[72px]`}>
-              <p className="text-xl font-bold">{s.value}</p>
-              <p className="text-xs font-medium">{s.label}</p>
-            </div>
+            <button
+              key={s.label}
+              type="button"
+              onClick={() => {
+                setTab('orders');
+                setOrderStatusTab(s.tab);
+              }}
+              className={`${s.color} px-3.5 py-1.5 rounded-xl text-center min-w-[70px] border transition-all cursor-pointer shadow-2xs`}
+              title={`Switch to ${s.label} orders`}
+            >
+              <p className="text-lg font-black leading-none">{s.value}</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider mt-0.5">{s.label}</p>
+            </button>
           ))}
         </div>
       </div>
 
-      {/* Tabs */}
+      {/* Main Navigation Tabs */}
       <div className="flex gap-2 border-b border-slate-200">
         {[
           { key: 'orders',    label: 'Orders',                      icon: ShoppingBag },
@@ -148,54 +212,152 @@ export default function RestaurantDashboard() {
 
       {/* ── ORDERS TAB ── */}
       {tab === 'orders' && (
-        <div className="space-y-6">
-          {/* Pending (needs action) */}
-          {pendingOrders.length > 0 && (
-            <section>
-              <h2 className="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
-                <Clock className="w-5 h-5 text-yellow-500" /> New Orders
-                <span className="ml-1 bg-yellow-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{pendingOrders.length}</span>
-              </h2>
-              <div className="space-y-3">
-                {pendingOrders.map(order => (
-                  <OrderCard key={order.id} order={order} updateOrderStatus={updateOrderStatus} />
+        <div className="space-y-5">
+          {/* Sub-navigation Controls: Status Tabs & Date Filter */}
+          <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+              {/* Status Segmented Tabs */}
+              <div className="flex flex-wrap items-center gap-2">
+                {[
+                  { key: 'active',    label: 'Active Orders', icon: Truck,       count: activeOrdersList.length,    badgeColor: pendingOrdersList.length > 0 ? 'bg-amber-500 text-white animate-pulse' : 'bg-slate-200 text-slate-700' },
+                  { key: 'completed', label: 'Completed',     icon: CheckCircle, count: completedOrdersList.length, badgeColor: 'bg-emerald-100 text-emerald-800' },
+                  { key: 'declined',  label: 'Declined',      icon: XCircle,     count: declinedOrdersList.length,  badgeColor: 'bg-rose-100 text-rose-800' },
+                  { key: 'all',       label: 'All Orders',    icon: ShoppingBag, count: dateFilteredOrders.length,  badgeColor: 'bg-slate-200 text-slate-700' },
+                ].map(st => {
+                  const Icon = st.icon;
+                  const isSelected = orderStatusTab === st.key;
+                  return (
+                    <button
+                      key={st.key}
+                      type="button"
+                      onClick={() => setOrderStatusTab(st.key)}
+                      className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                        isSelected
+                          ? 'bg-orange-600 text-white shadow-md shadow-orange-600/25 ring-2 ring-orange-400/20'
+                          : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200/90'
+                      }`}
+                    >
+                      <Icon className="w-4 h-4" />
+                      <span>{st.label}</span>
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                        isSelected ? 'bg-white/25 text-white' : st.badgeColor
+                      }`}>
+                        {st.count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Date Filter Pills */}
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1 mr-1">
+                  <Calendar className="w-3.5 h-3.5 text-orange-600" /> Filter:
+                </span>
+                {[
+                  { key: 'all',        label: 'All Time' },
+                  { key: 'today',      label: 'Today' },
+                  { key: 'yesterday',  label: 'Yesterday' },
+                  { key: 'this_month', label: 'This Month' },
+                ].map(df => (
+                  <button
+                    key={df.key}
+                    type="button"
+                    onClick={() => setOrderDateFilter(df.key)}
+                    className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                      orderDateFilter === df.key
+                        ? 'bg-slate-900 text-white shadow-xs'
+                        : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
+                    }`}
+                  >
+                    {df.label}
+                  </button>
                 ))}
               </div>
-            </section>
-          )}
+            </div>
 
-          {/* Active orders */}
-          {activeOrders.length > 0 && (
-            <section>
-              <h2 className="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
-                <Truck className="w-5 h-5 text-blue-500" /> Active Orders
-              </h2>
-              <div className="space-y-3">
-                {activeOrders.map(order => (
-                  <OrderCard key={order.id} order={order} updateOrderStatus={updateOrderStatus} />
-                ))}
+            {/* Quick Context Summary Banner */}
+            <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between text-xs text-slate-500 gap-2">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-slate-700">
+                  Showing {displayedOrders.length} {orderStatusTab} order{displayedOrders.length === 1 ? '' : 's'}
+                </span>
+                <span>•</span>
+                <span className="capitalize">
+                  Date Window: <strong className="text-slate-800">{orderDateFilter.replace('_', ' ')}</strong>
+                </span>
               </div>
-            </section>
-          )}
 
-          {/* Completed */}
-          {completedOrders.length > 0 && (
-            <section>
-              <h2 className="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-green-500" /> Completed Orders
-              </h2>
-              <div className="space-y-3">
-                {completedOrders.map(order => (
-                  <OrderCard key={order.id} order={order} updateOrderStatus={updateOrderStatus} />
-                ))}
+              {orderStatusTab === 'active' && pendingOrdersList.length > 0 && (
+                <span className="inline-flex items-center gap-1.5 text-amber-800 font-bold bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">
+                  <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+                  {pendingOrdersList.length} New Order{pendingOrdersList.length > 1 ? 's' : ''} Awaiting Kitchen Acceptance
+                </span>
+              )}
+
+              {orderStatusTab === 'completed' && (
+                <span className="text-emerald-700 font-bold">
+                  Completed Revenue: ₹{completedOrdersList.reduce((sum, o) => sum + Number(o.total_amount || 0), 0).toLocaleString('en-IN')}
+                </span>
+              )}
+
+              {orderStatusTab === 'declined' && (
+                <span className="text-rose-700 font-bold">
+                  {declinedOrdersList.length} Order{declinedOrdersList.length === 1 ? '' : 's'} Declined / Cancelled
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Pending Action Urgent Banner if on Active tab and orders are waiting */}
+          {orderStatusTab === 'active' && pendingOrdersList.length > 0 && (
+            <div className="p-4 bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 border-2 border-amber-300 rounded-2xl flex items-center justify-between gap-3 shadow-xs">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold text-lg shrink-0">
+                  🔔
+                </div>
+                <div>
+                  <h4 className="text-xs font-black text-amber-950 uppercase tracking-wide">Action Required</h4>
+                  <p className="text-xs text-amber-900 font-medium">
+                    You have <strong>{pendingOrdersList.length}</strong> new incoming order{pendingOrdersList.length > 1 ? 's' : ''}. Accept to initiate kitchen cooking and synchronized rider dispatch.
+                  </p>
+                </div>
               </div>
-            </section>
+              <span className="text-xs font-black text-amber-700 bg-amber-100 px-3 py-1 rounded-full shrink-0 hidden sm:inline-block">
+                Top Priority
+              </span>
+            </div>
           )}
 
-          {data?.orders?.length === 0 && (
-            <div className="bg-white rounded-xl border border-slate-200 p-14 text-center">
-              <Package className="w-12 h-12 text-slate-200 mx-auto mb-3" />
-              <p className="text-slate-500 font-medium">No orders yet. They'll appear here when customers order.</p>
+          {/* Orders Listing */}
+          {displayedOrders.length > 0 ? (
+            <div className="space-y-4">
+              {displayedOrders.map(order => (
+                <OrderCard key={order.id} order={order} updateOrderStatus={updateOrderStatus} />
+              ))}
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center space-y-3 shadow-2xs">
+              <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto text-xl">
+                {orderStatusTab === 'active' ? '🍳' : orderStatusTab === 'completed' ? '📦' : orderStatusTab === 'declined' ? '🚫' : '📋'}
+              </div>
+              <p className="text-sm font-bold text-slate-800">
+                No {orderStatusTab} orders found {orderDateFilter !== 'all' ? `for ${orderDateFilter.replace('_', ' ')}` : ''}
+              </p>
+              <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                {orderDateFilter !== 'all'
+                  ? 'No orders in this status category match the selected date window. Switch to "All Time" to view all records.'
+                  : 'New orders will automatically appear here in real time when placed by customers.'}
+              </p>
+              {orderDateFilter !== 'all' && (
+                <button
+                  type="button"
+                  onClick={() => setOrderDateFilter('all')}
+                  className="px-4 py-2 bg-orange-50 text-orange-600 hover:bg-orange-100 font-bold text-xs rounded-xl border border-orange-200 transition-colors cursor-pointer"
+                >
+                  View All Time Orders
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -309,6 +471,18 @@ function OrderCard({ order, updateOrderStatus }) {
               className="bg-green-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors">
               🎉 Mark Delivered
             </button>
+          )}
+          {order.status === 'delivered' && (
+            <div className="flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-50 text-emerald-700 rounded-lg text-xs font-bold border border-emerald-200">
+              <CheckCircle className="w-3.5 h-3.5" />
+              <span>Delivered Successfully</span>
+            </div>
+          )}
+          {order.status === 'rejected' && (
+            <div className="flex items-center justify-center gap-1.5 px-3 py-2 bg-red-50 text-red-700 rounded-lg text-xs font-bold border border-red-200">
+              <XCircle className="w-3.5 h-3.5" />
+              <span>Declined by Kitchen</span>
+            </div>
           )}
         </div>
       </div>
