@@ -3,6 +3,8 @@ from typing import List, Dict, Optional
 from pydantic import BaseModel
 from app.api.deps import get_current_user
 from app.database.supabase import supabase
+from app.services.freshness_service import calculate_freshness_index
+from app.services.staged_dispatch_service import compute_staged_dispatch_schedule, enrich_order_with_smart_telemetry
 from app.ml.predictor import predict_delivery_time
 from datetime import datetime, timedelta
 import random
@@ -74,6 +76,7 @@ class PlaceOrderRequest(BaseModel):
     weather_condition: Optional[str] = None
     city: Optional[str] = "Pune"
     override_weather: Optional[str] = None
+    has_thermal_packaging: Optional[bool] = False
     
 class OrderStatusUpdate(BaseModel):
     status: str
@@ -278,10 +281,33 @@ def place_order(request: PlaceOrderRequest, current_user: dict = Depends(get_cur
         except Exception as n_err:
             print("Notice: order notification dispatch error:", n_err)
 
+        # Compute AI Food Freshness & Staged Courier Dispatch
+        items_for_freshness = []
+        for item in request.items:
+            mi = menu_items_cache.get(item.menu_item_id) or {}
+            items_for_freshness.append({
+                "name": mi.get("name", "Dish"),
+                "quantity": item.quantity,
+                "description": mi.get("description", "")
+            })
+
+        freshness_result = calculate_freshness_index(
+            delivery_time_min=pred_min,
+            items=items_for_freshness,
+            has_thermal_packaging=request.has_thermal_packaging or False
+        )
+        staged_dispatch = compute_staged_dispatch_schedule(
+            prep_time_min=prep_time,
+            courier_pickup_transit_min=5.5,
+            order_status="pending"
+        )
+
         return {
             "success": True, 
             "order_id": order_id, 
             "prediction": prediction_result,
+            "freshness_assessment": freshness_result,
+            "staged_dispatch": staged_dispatch,
             "distance_km": actual_distance,
             "order_time": order_time_str,
             "estimated_arrival_time": arrival_time_str,
@@ -303,7 +329,9 @@ def place_order(request: PlaceOrderRequest, current_user: dict = Depends(get_cur
 def get_my_orders(current_user: dict = Depends(get_current_user)):
     try:
         res = supabase.table("orders").select("*, restaurants(name, image_url), order_items(*, menu_items(name))").eq("user_id", current_user["id"]).order("created_at", desc=True).execute()
-        return {"orders": res.data}
+        orders_raw = res.data or []
+        enriched_orders = [enrich_order_with_smart_telemetry(o) for o in orders_raw]
+        return {"orders": enriched_orders}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 

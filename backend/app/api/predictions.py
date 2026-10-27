@@ -5,6 +5,8 @@ from app.schemas.prediction import PredictionRequest
 from app.ml.predictor import predict_delivery_time, get_model_coefficients, compute_what_if
 from app.api.deps import get_current_user
 from app.database.supabase import supabase
+from app.services.freshness_service import calculate_freshness_index
+from app.services.staged_dispatch_service import compute_staged_dispatch_schedule
 
 router = APIRouter()
 
@@ -27,6 +29,43 @@ def calculate_what_if(req: WhatIfRequest):
         b_input = req.baseline.model_dump(by_alias=False)
         c_input = req.counterfactual.model_dump(by_alias=False)
         return compute_what_if(b_input, c_input)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+class FreshnessRequest(BaseModel):
+    delivery_time_min: float = 28.0
+    items: List[Dict[str, Any]] = []
+    has_thermal_packaging: bool = False
+    ambient_temp_c: float = 28.0
+
+@router.post("/freshness")
+def evaluate_freshness(req: FreshnessRequest):
+    """Calculates thermodynamic food freshness and quality degradation score based on predicted ETA."""
+    try:
+        return calculate_freshness_index(
+            delivery_time_min=req.delivery_time_min,
+            items=req.items,
+            has_thermal_packaging=req.has_thermal_packaging,
+            ambient_temp_c=req.ambient_temp_c
+        )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+class StagedDispatchRequest(BaseModel):
+    prep_time_min: float = 18.0
+    courier_pickup_transit_min: float = 5.5
+    order_status: str = "pending"
+
+@router.post("/staged-dispatch")
+def evaluate_staged_dispatch(req: StagedDispatchRequest):
+    """Calculates synchronized staged dispatch schedule to eliminate courier curbside idling."""
+    try:
+        return compute_staged_dispatch_schedule(
+            prep_time_min=req.prep_time_min,
+            courier_pickup_transit_min=req.courier_pickup_transit_min,
+            order_status=req.order_status
+        )
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 

@@ -10,6 +10,8 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import Virtual3DMap from '../../components/Virtual3DMap';
 import WeatherWidget from '../../components/WeatherWidget';
+import FreshnessGauge from '../../components/FreshnessGauge';
+import StagedDispatchWidget from '../../components/StagedDispatchWidget';
 
 
 const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/api\/?$/, '');
@@ -150,6 +152,8 @@ export default function Checkout() {
   const [selectedMapLocation, setSelectedMapLocation] = useState(null);
   const [distanceKm, setDistanceKm] = useState(3.5);
   const [liveWeather, setLiveWeather] = useState(null);
+  const [hasThermalPackaging, setHasThermalPackaging] = useState(false);
+  const [freshnessPreview, setFreshnessPreview] = useState(null);
 
   const handleLocationSelect = useCallback((loc) => {
     setSelectedMapLocation(loc);
@@ -163,6 +167,23 @@ export default function Checkout() {
     });
   }, []);
 
+  // Fetch AI food freshness prediction preview based on cart items & transit distance
+  useEffect(() => {
+    if (!state?.items || state.items.length === 0) return;
+    const approxDeliveryMin = Math.round(15 + (distanceKm * 2.2) + (liveWeather?.condition === 'Rainy' ? 12 : 0));
+    
+    axios.post(`${API_URL}/api/predictions/freshness`, {
+      delivery_time_min: approxDeliveryMin,
+      items: state.items.map(i => ({ name: i.name, quantity: i.quantity, description: i.description || '' })),
+      has_thermal_packaging: hasThermalPackaging,
+      ambient_temp_c: 28.0
+    }).then(res => {
+      setFreshnessPreview(res.data);
+    }).catch(err => {
+      console.log('Freshness preview fetch:', err);
+    });
+  }, [distanceKm, hasThermalPackaging, state?.items, liveWeather]);
+
   if (!state || !state.items || state.items.length === 0) {
     return (
       <div className="p-8 text-center">
@@ -173,11 +194,13 @@ export default function Checkout() {
   }
 
   const { restaurant_id, items, restaurant_name } = state;
-  const total = items.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+  const itemsSubtotal = items.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+  const thermalPackFee = hasThermalPackaging ? 15 : 0;
+  const total = itemsSubtotal + thermalPackFee;
 
   // Calculate promotional savings
   const deliveryFeeWaived = 50;
-  const chefFestiveDiscount = Math.round(total * 0.12);
+  const chefFestiveDiscount = Math.round(itemsSubtotal * 0.12);
   const totalSavings = deliveryFeeWaived + chefFestiveDiscount;
 
   const handlePlaceOrder = async (e) => {
@@ -199,6 +222,7 @@ export default function Checkout() {
         delivery_address: address || selectedMapLocation?.address || 'Virtual City Central',
         payment_method:   payment,
         distance_km:      distanceKm,
+        has_thermal_packaging: hasThermalPackaging,
         user_location:    selectedMapLocation ? { x: selectedMapLocation.x, z: selectedMapLocation.z } : null,
         order_time:       now.toISOString(),
         local_hour:       localHour,
@@ -219,6 +243,9 @@ export default function Checkout() {
       setConfirmed({
         order_id: res.data.order_id,
         prediction: res.data.prediction,
+        freshness_assessment: res.data.freshness_assessment,
+        staged_dispatch: res.data.staged_dispatch,
+        has_thermal_packaging: hasThermalPackaging,
         distance_km: res.data.distance_km || distanceKm,
         order_time: res.data.order_time || localTimeStr,
         estimated_arrival_time: res.data.estimated_arrival_time || res.data.prediction?.estimated_arrival_time,
@@ -361,6 +388,23 @@ export default function Checkout() {
               </p>
             </div>
           </motion.div>
+        )}
+
+        {/* Staged Courier Dispatch Timeline */}
+        {confirmed.staged_dispatch && (
+          <StagedDispatchWidget
+            stagedData={confirmed.staged_dispatch}
+            userRole="user"
+          />
+        )}
+
+        {/* AI Food Freshness & Quality Assurance Gauge */}
+        {confirmed.freshness_assessment && (
+          <FreshnessGauge
+            freshnessData={confirmed.freshness_assessment}
+            hasThermalPackaging={confirmed.has_thermal_packaging}
+            showToggle={false}
+          />
         )}
 
         {/* 3D Map Transit & Timing Summary Card */}
@@ -575,9 +619,30 @@ export default function Checkout() {
             />
           </div>
 
-          {/* STEP 4: Payment Method */}
+          {/* STEP 4: AI Food Freshness & Thermal Packaging Shield */}
+          <div className="space-y-2">
+            <label className="block text-xs font-bold text-[#191411] flex items-center justify-between">
+              <span className="flex items-center gap-1.5">
+                <Sparkles size={14} className="text-orange-600" />
+                Step 4: AI Food Freshness & Quality Assurance
+              </span>
+              {freshnessPreview && (
+                <span className="text-[11px] font-mono text-emerald-700 font-bold bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                  {freshnessPreview.overall_freshness_score}% retention
+                </span>
+              )}
+            </label>
+            <FreshnessGauge
+              freshnessData={freshnessPreview}
+              hasThermalPackaging={hasThermalPackaging}
+              onToggleThermalPackaging={() => setHasThermalPackaging(prev => !prev)}
+              showToggle={true}
+            />
+          </div>
+
+          {/* STEP 5: Payment Method */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-[#191411]">Step 4: Payment Method</label>
+            <label className="block text-xs font-bold text-[#191411]">Step 5: Payment Method</label>
             <div className="grid grid-cols-2 gap-3">
 
               {[
@@ -649,8 +714,14 @@ export default function Checkout() {
         <div className="space-y-2 pt-1 border-t border-[#ECE4D8]/60 text-xs">
           <div className="flex justify-between text-slate-500">
             <span>Item Subtotal</span>
-            <span>₹{total.toLocaleString('en-IN')}</span>
+            <span>₹{itemsSubtotal.toLocaleString('en-IN')}</span>
           </div>
+          {hasThermalPackaging && (
+            <div className="flex justify-between text-orange-700 font-semibold bg-orange-50/80 px-2.5 py-1.5 rounded-xl border border-orange-200">
+              <span className="flex items-center gap-1">🛡️ Thermal Vapor-Lock Pack</span>
+              <span>+₹15</span>
+            </div>
+          )}
           <div className="flex justify-between text-emerald-700 font-medium">
             <span>Delivery Fee</span>
             <span className="line-through text-slate-400">₹50</span>

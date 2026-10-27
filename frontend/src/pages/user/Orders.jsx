@@ -5,6 +5,8 @@ import {
   Clock, MapPin, Package, CheckCircle2, Truck, AlertTriangle,
   Store, RefreshCw, ChefHat, Bike, Sparkles
 } from 'lucide-react';
+import FreshnessGauge from '../../components/FreshnessGauge';
+import StagedDispatchWidget from '../../components/StagedDispatchWidget';
 
 const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/api\/?$/, '');
 
@@ -291,6 +293,29 @@ export default function Orders() {
                     </div>
                   )}
                 </div>
+
+                {/* Staged Dispatch Zero-Idle Synchronizer */}
+                {order.staged_dispatch && (
+                  <div className="px-5 pb-4">
+                    <StagedDispatchWidget
+                      stagedData={order.staged_dispatch}
+                      userRole="user"
+                      compact={!isActive}
+                    />
+                  </div>
+                )}
+
+                {/* AI Food Freshness & Quality Assurance Gauge */}
+                {order.freshness_assessment && (
+                  <div className="px-5 pb-5">
+                    <FreshnessGauge
+                      freshnessData={order.freshness_assessment}
+                      hasThermalPackaging={order.has_thermal_packaging || order.freshness_assessment?.has_thermal_packaging}
+                      showToggle={false}
+                      compact={!isActive}
+                    />
+                  </div>
+                )}
               </div>
             );
           })}

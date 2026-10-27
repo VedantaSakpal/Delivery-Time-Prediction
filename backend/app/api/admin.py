@@ -3,6 +3,7 @@ from typing import List, Dict, Optional, Any
 from pydantic import BaseModel
 import pandas as pd
 from app.ml.predictor import get_model_coefficients
+from app.services.staged_dispatch_service import enrich_order_with_smart_telemetry
 from app.api.deps import get_current_admin
 from app.database.supabase import supabase
 from app.database.restaurant_status import (
@@ -280,7 +281,8 @@ def get_all_orders(current_admin: dict = Depends(get_current_admin), limit: int 
             .order("created_at", desc=True) \
             .range(offset, offset + limit - 1) \
             .execute()
-        return {"orders": response.data}
+        enriched = [enrich_order_with_smart_telemetry(o) for o in (response.data or [])]
+        return {"orders": enriched}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 

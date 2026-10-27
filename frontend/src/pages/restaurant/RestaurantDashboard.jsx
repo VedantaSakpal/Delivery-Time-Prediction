@@ -10,6 +10,8 @@ import {
   ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell
 } from 'recharts';
 import OperationsReportView from '../../components/OperationsReportView';
+import FreshnessGauge from '../../components/FreshnessGauge';
+import StagedDispatchWidget from '../../components/StagedDispatchWidget';
 
 const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/api\/?$/, '');
 
@@ -215,6 +217,27 @@ export default function RestaurantDashboard() {
 /* ─── OrderCard ─── */
 function OrderCard({ order, updateOrderStatus }) {
   const statusClass = STATUS_COLORS[order.status] || 'bg-slate-100 text-slate-600 border-slate-200';
+  const isActive = !['delivered', 'rejected'].includes(order.status);
+  const [stagedData, setStagedData] = useState(order.staged_dispatch);
+
+  useEffect(() => {
+    setStagedData(order.staged_dispatch);
+  }, [order.staged_dispatch]);
+
+  const handleAdjustPrep = async (deltaMinutes) => {
+    try {
+      const currentPrep = stagedData?.prep_time_min || 18.0;
+      const newPrep = Math.max(5, currentPrep + deltaMinutes);
+      const res = await axios.post(`${API_URL}/api/predictions/staged-dispatch`, {
+        prep_time_min: newPrep,
+        courier_pickup_transit_min: stagedData?.courier_pickup_transit_min || 5.5,
+        order_status: order.status
+      });
+      setStagedData(res.data);
+    } catch (err) {
+      console.error('Failed to adjust prep time sync:', err);
+    }
+  };
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
@@ -289,6 +312,30 @@ function OrderCard({ order, updateOrderStatus }) {
           )}
         </div>
       </div>
+
+      {/* Decoupled Staged Dispatch Synchronization */}
+      {stagedData && (
+        <div className="px-5 pb-4">
+          <StagedDispatchWidget
+            stagedData={stagedData}
+            userRole="restaurant"
+            onAdjustPrepTime={handleAdjustPrep}
+            compact={!isActive}
+          />
+        </div>
+      )}
+
+      {/* Food Freshness & Thermal Retention Assessment */}
+      {order.freshness_assessment && (
+        <div className="px-5 pb-4">
+          <FreshnessGauge
+            freshnessData={order.freshness_assessment}
+            hasThermalPackaging={order.has_thermal_packaging || order.freshness_assessment?.has_thermal_packaging}
+            showToggle={false}
+            compact={!isActive}
+          />
+        </div>
+      )}
     </div>
   );
 }

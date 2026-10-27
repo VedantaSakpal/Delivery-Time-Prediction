@@ -643,5 +643,56 @@
     },
     "is_read": false,
     "created_at": "2026-10-26T07:16:18.585818+00:00"
+  },
+  "03aa7ae4-f0b5-43e7-86e3-110e7b26066e": {
+    "id": "03aa7ae4-f0b5-43e7-86e3-110e7b26066e",
+    "recipient_id": "c22e3d46-5114-4b16-8d16-981b0920a4a0",
+    "role": "restaurant",
+    "title": "New Order Received! \ud83d\udd14",
+    "message": "Order #dbbef77c received from vedantsakpal400@gmail.com for Rs. 15.99 (1 items).",
+    "type": "new_order",
+    "data": {
+      "order_id": "dbbef77c-dc26-4b30-870f-bf3dd856b273",
+      "restaurant_id": "40c1215c-0990-40e2-9769-3c03c1733ebd",
+      "restaurant_name": "Spice Route Indian Kitchen",
+      "amount": 15.99,
+      "items_count": 1,
+      "diner_name": "vedantsakpal400@gmail.com"
+    },
+    "is_read": false,
+    "created_at": "2026-10-27T14:57:25.645940+00:00"
+  },
+  "a9067480-f378-42b4-b272-84a349f0981c": {
+    "id": "a9067480-f378-42b4-b272-84a349f0981c",
+    "recipient_id": "84737edd-c3a7-42c2-bdf3-e9df699116ba",
+    "role": "user",
+    "title": "Order Confirmed! \ud83c\udf89",
+    "message": "Your order #dbbef77c with Spice Route Indian Kitchen has been placed. Estimated arrival at ~09:27 PM.",
+    "type": "order_placed",
+    "data": {
+      "order_id": "dbbef77c-dc26-4b30-870f-bf3dd856b273",
+      "restaurant_id": "40c1215c-0990-40e2-9769-3c03c1733ebd",
+      "restaurant_name": "Spice Route Indian Kitchen",
+      "estimated_arrival": "09:27 PM",
+      "amount": 15.99
+    },
+    "is_read": false,
+    "created_at": "2026-10-27T14:57:25.672239+00:00"
+  },
+  "dd5e6280-bade-4d8f-b445-78f0cc8ee6c4": {
+    "id": "dd5e6280-bade-4d8f-b445-78f0cc8ee6c4",
+    "recipient_id": "admin",
+    "role": "admin",
+    "title": "New Platform Order \ud83d\udce6",
+    "message": "Order #dbbef77c (Rs. 15.99) placed at Spice Route Indian Kitchen by vedantsakpal400@gmail.com.",
+    "type": "admin_order",
+    "data": {
+      "order_id": "dbbef77c-dc26-4b30-870f-bf3dd856b273",
+      "restaurant_id": "40c1215c-0990-40e2-9769-3c03c1733ebd",
+      "restaurant_name": "Spice Route Indian Kitchen",
+      "amount": 15.99
+    },
+    "is_read": false,
+    "created_at": "2026-10-27T14:57:25.680218+00:00"
   }
 }

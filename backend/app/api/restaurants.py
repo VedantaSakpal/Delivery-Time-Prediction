@@ -3,6 +3,7 @@ from typing import List, Dict, Optional
 from pydantic import BaseModel
 from app.api.deps import get_current_user
 from app.database.supabase import supabase
+from app.services.staged_dispatch_service import enrich_order_with_smart_telemetry
 
 router = APIRouter()
 
@@ -220,9 +221,10 @@ def get_restaurant_dashboard(current_user: dict = Depends(get_current_user)):
         orders = supabase.table("orders").select("*, profiles(full_name, email), order_items(*, menu_items(name))").eq("restaurant_id", restaurant["id"]).order("created_at", desc=True).execute()
         menu = supabase.table("menu_items").select("*").eq("restaurant_id", restaurant["id"]).execute()
         
+        enriched_orders = [enrich_order_with_smart_telemetry(o) for o in (orders.data or [])]
         return {
             "restaurant": restaurant,
-            "orders": orders.data,
+            "orders": enriched_orders,
             "menu": menu.data
         }
     except Exception as e:
