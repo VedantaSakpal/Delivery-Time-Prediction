@@ -318,7 +318,7 @@ export default function Landing() {
               </>
             ) : (
               <div className="flex items-center gap-2">
-                {isRestaurant ? (
+                {isRestaurant && (
                   <Link
                     to="/restaurant/dashboard"
                     className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl shadow-sm flex items-center gap-2"
@@ -326,13 +326,14 @@ export default function Landing() {
                     <ChefHat className="w-4 h-4" />
                     Kitchen Console
                   </Link>
-                ) : (
+                )}
+                {!isRestaurant && !isAdmin && (
                   <Link
                     to="/user/dashboard"
                     className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold rounded-xl shadow-sm flex items-center gap-2"
                   >
                     <User className="w-4 h-4" />
-                    {isAdmin ? 'Admin Dashboard' : 'My Orders'}
+                    My Orders
                   </Link>
                 )}
               </div>

@@ -3,12 +3,87 @@ import api from '../../services/api';
 import {
   Database, Layers, Network, Table, Download, Search, RefreshCw,
   TrendingUp, AlertCircle, CheckCircle2, Filter, ChevronLeft, ChevronRight,
-  Sparkles, Activity, FileSpreadsheet, GitBranch, ArrowUpRight, BarChart2
+  Sparkles, Activity, FileSpreadsheet, GitBranch, ArrowUpRight, BarChart2,
+  Info, HelpCircle, ArrowRight
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell
 } from 'recharts';
+
+// Plain English mapping for tables, roles, and measurements
+const TABLE_FRIENDLY_INFO = {
+  fact_orders: {
+    title: 'Customer Food Orders',
+    icon: '📦',
+    roleTag: 'Center Table: Live Platform Transactions',
+    plainMeaning: 'Records every single meal ordered by diners across all partner kitchens.',
+    measureLabel: 'Numbers It Measures:',
+    measuresSummary: ['Total Order Price (₹)', 'Promotional Discounts (₹)', 'Total Dishes Ordered'],
+    connectionSummary: 'Links each order to the Diner who placed it and the Kitchen cooking it.'
+  },
+  fact_predictions: {
+    title: 'AI Delivery Predictions',
+    icon: '⏱️',
+    roleTag: 'Center Table: Machine Learning Inferences',
+    plainMeaning: 'Stores every delivery duration calculated by our machine learning pipeline.',
+    measureLabel: 'Numbers It Measures:',
+    measuresSummary: ['Trip Distance (km)', 'Kitchen Prep Time (mins)', 'Predicted Delivery Time (mins)', 'Courier Experience (yrs)'],
+    connectionSummary: 'Links each prediction directly to the specific customer order and delivery address.'
+  },
+  fact_benchmark_deliveries: {
+    title: '1,000 Historical Benchmark Trips',
+    icon: '📊',
+    roleTag: 'Center Table: Golden Training Dataset',
+    plainMeaning: '1,000 verified past food deliveries used to test and train the model for high accuracy.',
+    measureLabel: 'Numbers It Measures:',
+    measuresSummary: ['Actual Trip Time (mins)', 'Trip Distance (km)', 'Kitchen Cooking Time (mins)', 'Courier Experience (yrs)'],
+    connectionSummary: 'Connects historical delivery duration with Weather, Traffic, and Courier vehicle type.'
+  },
+  dim_restaurants: {
+    title: 'Restaurants & Cloud Kitchens',
+    icon: '🍲',
+    roleTag: 'Detail Table: Where Food is Prepared',
+    plainMeaning: 'Stores the names, addresses, and standard cooking preparation times of all partner eateries.',
+    attributesSummary: ['Kitchen Name', 'Address & City', 'Average Prep Time', 'Photo URL']
+  },
+  dim_menu_items: {
+    title: 'Menu Dishes & Pricing',
+    icon: '🍛',
+    roleTag: 'Detail Table: What is Being Ordered',
+    plainMeaning: 'The food menu catalog across all kitchens, including dish prices and live availability.',
+    attributesSummary: ['Dish Name', 'Price (₹)', 'Dish Description', 'Available Today']
+  },
+  dim_customers: {
+    title: 'Diners & Registered Users',
+    icon: '👤',
+    roleTag: 'Detail Table: Who Ordered the Meal',
+    plainMeaning: 'Profiles of hungry customers placing orders on the platform.',
+    attributesSummary: ['Customer Name', 'Email Address', 'Account Role', 'Member Since']
+  },
+  dim_time: {
+    title: 'Time of Day & Meal Schedule',
+    icon: '⏰',
+    roleTag: 'Detail Table: When the Order Happened',
+    plainMeaning: 'Categorizes orders into Morning breakfast, Afternoon lunch rush, Evening dinner, or late Night.',
+    attributesSummary: ['Exact Hour', 'Day of Week', 'Meal Time Period', 'Month & Year']
+  },
+  dim_logistics_environment: {
+    title: 'Road Conditions & Vehicle',
+    icon: '🛵',
+    roleTag: 'Detail Table: How the Courier Traveled',
+    plainMeaning: 'Tracks atmospheric and traffic realities that speed up or slow down riders.',
+    attributesSummary: ['Weather (Clear / Rain / Fog)', 'Traffic (Low / Med / High)', 'Vehicle (Bike / Scooter / Car)']
+  }
+};
+
+const SIMPLE_ETL_STEPS = [
+  { step: 1, title: 'Collect', subtitle: 'Data Ingestion', text: 'Gathers live food orders and reads historical delivery trip files.', badge: 'FastAPI + Supabase' },
+  { step: 2, title: 'Clean Up', subtitle: 'Data Cleansing', text: 'Removes duplicates and fills missing numbers with smart medians.', badge: 'Pandas Data Engine' },
+  { step: 3, title: 'Format for AI', subtitle: 'Transformation', text: 'Converts weather, traffic, and vehicles into numbers our ML model can read.', badge: 'Scikit-Learn Pipeline' },
+  { step: 4, title: 'Organize', subtitle: 'Star Storage', text: 'Stores everything neatly in interconnected tables so queries are instant.', badge: 'PostgreSQL Database' },
+  { step: 5, title: 'Predict', subtitle: 'AI Serving', text: 'Calculates the delivery ETA and explains the reasons directly to diners.', badge: 'SHAP Explainability' }
+];
 
 export default function AdminWarehouse() {
   const [activeTab, setActiveTab] = useState('schema'); // 'schema' | 'wrangling' | 'mining' | 'explorer'
@@ -123,13 +198,13 @@ export default function AdminWarehouse() {
           <div className="space-y-2 max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-600/30 border border-orange-500/40 text-orange-400 text-xs font-extrabold uppercase tracking-wider">
               <Database className="w-3.5 h-3.5" />
-              Enterprise Data Warehouse & Mining
+              Delivery Intelligence & Data Warehouse
             </div>
             <h1 className="font-display text-3xl sm:text-4xl font-black tracking-tight">
-              Warehouse Telemetry & Star Schema
+              Data Storage & Delivery Mining
             </h1>
             <p className="text-stone-300 text-xs sm:text-sm leading-relaxed">
-              Analytical staging and dimensional star schema integrating historical benchmark CSVs (1,000 trips) and live transactional order telemetry for predictive data mining.
+              How ZaikaPulse organizes past delivery trips and live customer orders into interconnected tables so our AI can predict fast, accurate arrival times.
             </p>
           </div>
 
@@ -137,15 +212,15 @@ export default function AdminWarehouse() {
           <div className="flex gap-3 flex-wrap">
             <div className="bg-stone-800/80 border border-stone-700/80 px-4 py-3 rounded-2xl min-w-[110px] text-center">
               <p className="text-2xl font-black text-orange-400">{schema?.total_records_stored?.toLocaleString() || '1,148'}</p>
-              <p className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">Total Stored Rows</p>
+              <p className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">Stored Delivery Records</p>
             </div>
             <div className="bg-stone-800/80 border border-stone-700/80 px-4 py-3 rounded-2xl min-w-[110px] text-center">
-              <p className="text-2xl font-black text-emerald-400">3 Facts / 5 Dims</p>
-              <p className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">Star Architecture</p>
+              <p className="text-2xl font-black text-emerald-400">3 Action / 5 Details</p>
+              <p className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">Connected Tables</p>
             </div>
             <div className="bg-stone-800/80 border border-stone-700/80 px-4 py-3 rounded-2xl min-w-[110px] text-center">
               <p className="text-2xl font-black text-amber-400">100% Cleansed</p>
-              <p className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">Data Quality</p>
+              <p className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">Quality Verified</p>
             </div>
           </div>
         </div>
@@ -154,10 +229,10 @@ export default function AdminWarehouse() {
       {/* Navigation Sub-Tabs */}
       <div className="flex gap-2 border-b border-[#ECE4D8] overflow-x-auto pb-1">
         {[
-          { id: 'schema',    label: 'Star Schema Architecture', icon: Network },
-          { id: 'wrangling', label: 'Data Wrangling & Profiling', icon: GitBranch },
-          { id: 'mining',    label: 'Mining Patterns & Clusters', icon: Sparkles },
-          { id: 'explorer',  label: 'Interactive Warehouse Explorer (CSV & Live)', icon: Table },
+          { id: 'schema',    label: 'How Data is Organized (Star Schema)', icon: Network },
+          { id: 'wrangling', label: 'Data Cleaning & Quality', icon: GitBranch },
+          { id: 'mining',    label: 'Patterns & AI Clusters', icon: Sparkles },
+          { id: 'explorer',  label: 'Interactive Data Explorer', icon: Table },
         ].map(t => {
           const Icon = t.icon;
           const isActive = activeTab === t.id;
@@ -178,115 +253,227 @@ export default function AdminWarehouse() {
         })}
       </div>
 
-      {/* ─── TAB 1: STAR SCHEMA ARCHITECTURE ─── */}
+      {/* ─── TAB 1: HOW DATA IS ORGANIZED (STAR SCHEMA EXPLAINED SIMPLY) ─── */}
       {activeTab === 'schema' && (
         <div className="space-y-6">
-          {/* Fact Tables Grid */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-lg font-black text-[#191411] flex items-center gap-2">
-                <Layers className="w-5 h-5 text-orange-600" />
-                Analytical Fact Tables (Measurements & Inferences)
-              </h2>
-              <span className="text-xs text-stone-500 font-medium">Additive & Target Measures</span>
+
+          {/* 1. Star Schema in 30 Seconds - Plain English Explainer Card */}
+          <div className="bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-amber-500/10 border-2 border-orange-500/30 rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-orange-600 text-white flex items-center justify-center text-2xl shrink-0 shadow-md shadow-orange-600/20">
+                🌟
+              </div>
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[10px] font-black uppercase tracking-wider bg-orange-200 text-orange-950 px-2.5 py-0.5 rounded-full">
+                    Beginner-Friendly Explanation
+                  </span>
+                  <span className="text-xs font-bold text-stone-500">• What is a Star Schema?</span>
+                </div>
+                <h3 className="text-lg sm:text-xl font-display font-black text-[#191411]">
+                  Why is it called a "Star Schema" and how does it work?
+                </h3>
+                <p className="text-xs sm:text-sm text-stone-700 leading-relaxed">
+                  Imagine drawing a star. In databases, a <strong>Star Schema</strong> is the simplest and fastest way to organize information:
+                </p>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {schema?.fact_tables?.map((fact) => (
-                <div key={fact.name} className="bg-white rounded-3xl border border-[#ECE4D8] p-6 shadow-xs flex flex-col justify-between space-y-4">
-                  <div>
-                    <div className="flex items-center justify-between gap-2 mb-2">
-                      <span className="font-mono text-xs font-black px-2.5 py-1 rounded-lg bg-orange-100 text-orange-800 border border-orange-200">
-                        {fact.name}
-                      </span>
-                      <span className="text-xs font-bold text-stone-500">
-                        {fact.row_count?.toLocaleString()} rows
-                      </span>
-                    </div>
-                    <p className="text-xs text-stone-700 font-semibold mb-1">{fact.type}</p>
-                    <p className="text-[11px] text-stone-500 mb-3">{fact.grain}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+              <div className="bg-white p-4 rounded-2xl border border-orange-200 shadow-xs space-y-1.5">
+                <div className="flex items-center gap-2 text-orange-700 font-extrabold text-sm">
+                  <span className="w-6 h-6 rounded-lg bg-orange-100 flex items-center justify-center text-xs">1</span>
+                  <span>The Center of the Star (Fact Tables)</span>
+                </div>
+                <p className="text-xs text-stone-600 leading-relaxed">
+                  Contains all the <strong>numbers and events</strong>. For example: every customer order placed, the total bill in ₹, and the predicted delivery time in minutes.
+                </p>
+              </div>
 
-                    <div className="space-y-1.5 pt-3 border-t border-[#ECE4D8]">
-                      <p className="text-[10px] font-extrabold uppercase tracking-wider text-stone-400">Measures:</p>
-                      <div className="flex flex-wrap gap-1">
-                        {fact.measures?.map(m => (
-                          <span key={m} className="px-2 py-0.5 rounded-md bg-stone-100 text-stone-700 text-[10px] font-mono">
-                            {m}
-                          </span>
-                        ))}
+              <div className="bg-white p-4 rounded-2xl border border-amber-200 shadow-xs space-y-1.5">
+                <div className="flex items-center gap-2 text-amber-800 font-extrabold text-sm">
+                  <span className="w-6 h-6 rounded-lg bg-amber-100 flex items-center justify-center text-xs">2</span>
+                  <span>The Points of the Star (Dimension Tables)</span>
+                </div>
+                <p className="text-xs text-stone-600 leading-relaxed">
+                  Contains the <strong>descriptive details</strong> surrounding the action. For example: <em>Who</em> ordered, <em>Which</em> restaurant cooked it, <em>What</em> the weather was, and <em>What</em> vehicle was used.
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3 bg-white/80 rounded-xl border border-orange-100 text-xs text-stone-600 flex items-center gap-2">
+              <Info className="w-4 h-4 text-orange-600 shrink-0" />
+              <span><strong>Why do we use it?</strong> Because keeping numbers in the middle and details on the sides makes search queries 10x faster and prevents the app from slowing down during peak food hours.</span>
+            </div>
+          </div>
+
+          {/* 2. Fact Tables - The Center of the Star */}
+          <div className="space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+              <div>
+                <h2 className="text-lg font-black text-[#191411] flex items-center gap-2">
+                  <span className="p-1.5 rounded-xl bg-orange-100 text-orange-700 text-sm">🎯</span>
+                  The Center of the Star: Core Action Tables (Where Numbers Live)
+                </h2>
+                <p className="text-xs text-stone-500">
+                  These tables record every business action and numerical measurement.
+                </p>
+              </div>
+              <span className="text-xs font-bold text-orange-700 bg-orange-50 px-3 py-1 rounded-full border border-orange-200 self-start sm:self-auto">
+                3 Action Tables Active
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              {schema?.fact_tables?.map((fact) => {
+                const info = TABLE_FRIENDLY_INFO[fact.name] || {};
+                return (
+                  <div key={fact.name} className="bg-white rounded-3xl border border-[#ECE4D8] p-5 shadow-xs flex flex-col justify-between space-y-4 hover:border-orange-300 transition-colors">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xl">{info.icon || '📦'}</span>
+                          <div>
+                            <h3 className="font-extrabold text-sm text-[#191411]">
+                              {info.title || fact.name}
+                            </h3>
+                            <span className="font-mono text-[10px] text-stone-400">table: {fact.name}</span>
+                          </div>
+                        </div>
+                        <span className="text-[11px] font-bold px-2 py-0.5 rounded-lg bg-orange-50 text-orange-800 border border-orange-200">
+                          {fact.row_count?.toLocaleString()} rows
+                        </span>
+                      </div>
+
+                      <p className="text-xs text-stone-700 font-medium leading-relaxed bg-[#FAF7F2] p-2.5 rounded-xl border border-[#ECE4D8]">
+                        {info.plainMeaning || fact.grain}
+                      </p>
+
+                      <div className="space-y-1.5">
+                        <p className="text-[10px] font-extrabold uppercase tracking-wider text-stone-400">
+                          {info.measureLabel || 'Numbers Measured:'}
+                        </p>
+                        <div className="flex flex-wrap gap-1">
+                          {(info.measuresSummary || fact.measures)?.map((m) => (
+                            <span key={m} className="px-2 py-0.5 rounded-md bg-stone-100 text-stone-700 text-[10px] font-semibold border border-stone-200">
+                              {m}
+                            </span>
+                          ))}
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="pt-3 border-t border-[#ECE4D8]">
-                    <p className="text-[10px] font-extrabold uppercase tracking-wider text-stone-400 mb-1">Foreign Keys:</p>
-                    <ul className="text-[10px] font-mono text-stone-600 space-y-0.5">
-                      {fact.foreign_keys?.map(fk => <li key={fk}>• {fk}</li>)}
-                    </ul>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Dimension Tables Grid */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-lg font-black text-[#191411] flex items-center gap-2">
-                <Network className="w-5 h-5 text-amber-600" />
-                Conformed Dimension Tables (Context & Hierarchies)
-              </h2>
-              <span className="text-xs text-stone-500 font-medium">Descriptive Attributes</span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {schema?.dimension_tables?.map((dim) => (
-                <div key={dim.name} className="bg-white rounded-3xl border border-[#ECE4D8] p-5 shadow-xs space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs font-bold px-2 py-1 rounded-lg bg-amber-50 text-amber-900 border border-amber-200">
-                      {dim.name}
-                    </span>
-                    <span className="text-xs font-bold text-stone-500">
-                      {dim.row_count}
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-stone-500 font-medium">{dim.type}</p>
-                  <p className="text-[11px] text-stone-700 font-mono">PK: {dim.primary_key}</p>
-
-                  <div className="pt-2 border-t border-[#ECE4D8]">
-                    <p className="text-[10px] font-extrabold uppercase tracking-wider text-stone-400 mb-1">Attributes:</p>
-                    <div className="flex flex-wrap gap-1">
-                      {dim.attributes?.map(a => (
-                        <span key={a} className="px-1.5 py-0.5 rounded bg-stone-50 text-stone-600 text-[10px] font-mono border border-stone-200">
-                          {a}
-                        </span>
-                      ))}
+                    <div className="pt-3 border-t border-[#ECE4D8] text-[11px] text-stone-600">
+                      <p className="text-[10px] font-extrabold uppercase tracking-wider text-stone-400 mb-1">How It Connects:</p>
+                      <p className="leading-snug text-stone-600 font-medium">
+                        {info.connectionSummary || fact.foreign_keys?.join(', ')}
+                      </p>
                     </div>
                   </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 3. Dimension Tables - The Points of the Star */}
+          <div className="space-y-3 pt-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+              <div>
+                <h2 className="text-lg font-black text-[#191411] flex items-center gap-2">
+                  <span className="p-1.5 rounded-xl bg-amber-100 text-amber-700 text-sm">🧭</span>
+                  The Points of the Star: Context & Details (Who, Where & When)
+                </h2>
+                <p className="text-xs text-stone-500">
+                  These tables hold the descriptive background information that explains each order.
+                </p>
+              </div>
+              <span className="text-xs font-bold text-amber-800 bg-amber-50 px-3 py-1 rounded-full border border-amber-200 self-start sm:self-auto">
+                5 Context Tables Active
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {schema?.dimension_tables?.map((dim) => {
+                const info = TABLE_FRIENDLY_INFO[dim.name] || {};
+                return (
+                  <div key={dim.name} className="bg-white rounded-3xl border border-[#ECE4D8] p-5 shadow-xs space-y-3 hover:border-amber-300 transition-colors flex flex-col justify-between">
+                    <div className="space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xl">{info.icon || '🏷️'}</span>
+                          <div>
+                            <h3 className="font-extrabold text-sm text-[#191411]">
+                              {info.title || dim.name}
+                            </h3>
+                            <span className="font-mono text-[10px] text-stone-400">table: {dim.name}</span>
+                          </div>
+                        </div>
+                        <span className="text-[11px] font-bold px-2 py-0.5 rounded-lg bg-amber-50 text-amber-800 border border-amber-200">
+                          {dim.row_count}
+                        </span>
+                      </div>
+
+                      <p className="text-xs text-stone-700 font-medium leading-relaxed bg-[#FAF7F2] p-2.5 rounded-xl border border-[#ECE4D8]">
+                        {info.plainMeaning || dim.type}
+                      </p>
+
+                      <div className="space-y-1">
+                        <p className="text-[10px] font-extrabold uppercase tracking-wider text-stone-400">Information Stored Inside:</p>
+                        <div className="flex flex-wrap gap-1">
+                          {(info.attributesSummary || dim.attributes)?.map((a) => (
+                            <span key={a} className="px-1.5 py-0.5 rounded bg-stone-50 text-stone-700 text-[10px] font-medium border border-stone-200">
+                              {a}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-2 border-t border-[#ECE4D8] text-[10px] text-stone-500 font-medium flex items-center justify-between">
+                      <span>Unique ID Key:</span>
+                      <span className="font-mono font-bold text-stone-700">{dim.primary_key}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 4. 5-Stage Pipeline in Everyday English */}
+          <div className="bg-white rounded-3xl border border-[#ECE4D8] p-6 shadow-xs space-y-4">
+            <div>
+              <h3 className="font-bold text-[#191411] text-base flex items-center gap-2">
+                <span className="p-1.5 rounded-xl bg-orange-100 text-orange-700 text-sm">🚀</span>
+                5 Simple Steps: How Delivery Data Flows in ZaikaPulse
+              </h3>
+              <p className="text-xs text-stone-500 mt-0.5">
+                From the moment a diner taps "Place Order" to when the machine learning prediction is shown.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
+              {SIMPLE_ETL_STEPS.map((step) => (
+                <div key={step.step} className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#ECE4D8] space-y-2 flex flex-col justify-between">
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="w-6 h-6 rounded-lg bg-orange-600 text-white font-extrabold text-xs flex items-center justify-center">
+                        {step.step}
+                      </span>
+                      <span className="text-[10px] uppercase font-bold text-stone-400">{step.subtitle}</span>
+                    </div>
+                    <p className="text-xs font-black text-[#191411] mt-1">{step.title}</p>
+                    <p className="text-[11px] text-stone-600 leading-relaxed">{step.text}</p>
+                  </div>
+                  <div className="pt-2 border-t border-[#ECE4D8]/80">
+                    <span className="text-[10px] font-mono text-orange-700 font-bold bg-orange-50 px-2 py-0.5 rounded-md border border-orange-200 block text-center">
+                      {step.badge}
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* 5-Stage ETL Pipeline */}
-          <div className="bg-white rounded-3xl border border-[#ECE4D8] p-6 shadow-xs space-y-4">
-            <h3 className="font-bold text-[#191411] text-base flex items-center gap-2">
-              <GitBranch className="w-5 h-5 text-orange-600" />
-              End-to-End ETL Pipeline (Ingestion to Serving)
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
-              {schema?.etl_pipeline?.map((step, idx) => (
-                <div key={step.stage} className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#ECE4D8] space-y-2">
-                  <span className="w-6 h-6 rounded-lg bg-orange-600 text-white font-bold text-xs flex items-center justify-center">
-                    {idx + 1}
-                  </span>
-                  <p className="text-xs font-extrabold text-[#191411]">{step.stage}</p>
-                  <p className="text-[11px] text-stone-600">{step.source}</p>
-                  <p className="text-[10px] font-mono text-orange-700 font-bold">{step.tool}</p>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       )}
 
