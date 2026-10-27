@@ -171,7 +171,7 @@ def apply_for_partnership(req: PartnerApplicationRequest):
 
     return {
         "success": True,
-        "message": "Application submitted successfully! Your culinary and FSSAI credentials will be verified by the Zaika Admin team within 24-48 hours.",
+        "message": "Application submitted successfully! Your culinary and FSSAI credentials will be verified by the justwoww Admin team within 24-48 hours.",
         "application": new_app
     }
 
@@ -246,7 +246,7 @@ def add_menu_item(item: MenuItem, current_user: dict = Depends(get_current_user)
 
 @router.get("/me/analytics")
 def get_restaurant_analytics(current_user: dict = Depends(get_current_user)):
-    """OLAP-style analytics for the restaurant owner's orders."""
+    """Analytics for the restaurant owner's orders."""
     if current_user.get("role") != "restaurant":
         raise HTTPException(status_code=403, detail="Not a restaurant user")
     try:

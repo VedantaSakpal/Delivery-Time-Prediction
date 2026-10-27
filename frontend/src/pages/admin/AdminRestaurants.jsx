@@ -590,7 +590,7 @@ export default function AdminRestaurants() {
             <div className="bg-white p-5 rounded-2xl border border-emerald-200 shadow-xs bg-emerald-50/20">
               <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 block mb-1">Approved & Onboarded</span>
               <p className="text-2xl font-black text-emerald-800">{applicationsCounts.approved}</p>
-              <p className="text-[11px] text-emerald-700 mt-0.5">Active on ZaikaPulse</p>
+              <p className="text-[11px] text-emerald-700 mt-0.5">Active on justwoww</p>
             </div>
 
             <div className="bg-white p-5 rounded-2xl border border-rose-200 shadow-xs bg-rose-50/20">

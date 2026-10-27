@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '../../utils/supabase';
 import { Link, useNavigate } from 'react-router-dom';
+import Logo from '../../components/Logo';
 import { Mail, Lock, Loader2, ShieldCheck, ArrowLeft, Flame, Activity } from 'lucide-react';
 
 export default function AdminLogin() {
@@ -43,7 +44,7 @@ export default function AdminLogin() {
           className="inline-flex items-center gap-2 text-xs font-bold text-stone-400 hover:text-white transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to ZaikaPulse Home
+          Back to justwoww Home Home
         </Link>
       </div>
 
@@ -73,7 +74,7 @@ export default function AdminLogin() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@zaikapulse.com"
+                placeholder="admin@justwoww.com"
                 className="w-full pl-10 pr-4 py-2.5 bg-stone-900 border border-stone-800 rounded-xl text-xs font-medium text-white placeholder-stone-600 focus:ring-2 focus:ring-orange-500 focus:outline-none"
               />
             </div>

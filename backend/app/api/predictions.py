@@ -1,17 +1,39 @@
 from fastapi import APIRouter, Depends, HTTPException
-from typing import List, Dict
+from typing import List, Dict, Any
+from pydantic import BaseModel
 from app.schemas.prediction import PredictionRequest
-from app.ml.predictor import predict_delivery_time
+from app.ml.predictor import predict_delivery_time, get_model_coefficients, compute_what_if
 from app.api.deps import get_current_user
 from app.database.supabase import supabase
 
 router = APIRouter()
 
+class WhatIfRequest(BaseModel):
+    baseline: PredictionRequest
+    counterfactual: PredictionRequest
+
+@router.get("/coefficients")
+def get_coefficients():
+    """Returns exact OLS Linear Regression coefficients, beta weights, and marginal elasticity."""
+    try:
+        return get_model_coefficients()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/what-if")
+def calculate_what_if(req: WhatIfRequest):
+    """Calculates zero-latency counterfactual simulation delta between baseline and modified features."""
+    try:
+        b_input = req.baseline.model_dump(by_alias=False)
+        c_input = req.counterfactual.model_dump(by_alias=False)
+        return compute_what_if(b_input, c_input)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
 @router.post("/predict")
 def create_prediction(request: PredictionRequest, current_user: dict = Depends(get_current_user)):
     try:
         # 1. Run prediction
-        # Get raw dict using actual field names (Distance_km, etc.) instead of frontend aliases
         model_input = request.model_dump(by_alias=False)
         prediction_result = predict_delivery_time(model_input)
         

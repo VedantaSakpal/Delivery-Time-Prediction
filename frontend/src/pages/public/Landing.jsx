@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import Logo from '../../components/Logo';
 import {
   Clock, MapPin, Bike, Navigation, Utensils, Flame, Sparkles, ChefHat,
   ShieldCheck, ArrowRight, Star, CheckCircle2, ChevronRight, Zap,
@@ -205,7 +206,7 @@ export default function Landing() {
       <div className="flex min-h-screen items-center justify-center bg-[#FAF7F2]">
         <div className="flex flex-col items-center gap-3">
           <div className="w-12 h-12 rounded-full border-4 border-orange-500 border-t-transparent animate-spin" />
-          <span className="font-serif italic text-stone-700 text-lg">Garma-Garam Zaika ready ho raha hai...</span>
+          <span className="font-serif italic text-stone-700 text-lg">Garma-Garam food ready ho raha hai...</span>
         </div>
       </div>
     );
@@ -269,23 +270,13 @@ export default function Landing() {
       </div>
 
       {/* ============================================================== */}
-      {/* 2. CULINARY NAVBAR WITH INDIAN BRANDING: ZAIKAPULSE            */}
+      {/* 2. CULINARY NAVBAR WITH INDIAN BRANDING: JUSTWOWW            */}
       {/* ============================================================== */}
       <header className="sticky top-0 z-40 bg-[#FAF7F2]/95 backdrop-blur-md border-b border-[#ECE4D8]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           
           {/* Brand Mark */}
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-orange-500 via-amber-600 to-red-600 flex items-center justify-center text-white shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform">
-              <Flame className="w-6 h-6 animate-pulse" />
-            </div>
-            <div>
-              <span className="font-serif font-black text-2xl tracking-tight text-[#191411]">
-                Zaika<span className="text-orange-600">Pulse</span>
-              </span>
-              <p className="text-[11px] text-[#6E6157] font-medium tracking-tight">Desi Zaika • Punctual Delivery Har Baar</p>
-            </div>
-          </Link>
+          <Logo size="md" tagline="Instant Food • Punctual Delivery" to="/" />
 
           {/* Menu Anchors */}
           <nav className="hidden lg:flex items-center gap-8 text-sm font-semibold text-[#4A3C34]">
@@ -385,7 +376,7 @@ export default function Landing() {
 
               {/* Editorial Headline */}
               <h1 className="font-serif text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-[#191411] leading-[1.08]">
-                Garma-Garam Asli Zaika, <br />
+                Garma-Garam Asli justwoww, <br />
                 <span className="editorial-italic text-orange-600 font-normal">
                   exact time pe.
                 </span>
@@ -393,7 +384,7 @@ export default function Landing() {
 
               {/* Thoughtful, Human Subtitle */}
               <p className="text-lg sm:text-xl text-[#5C4F44] max-w-2xl font-normal leading-relaxed">
-                Thandi biryani aur soggy dosas ko bolo bye-bye. ZaikaPulse brings you iconic neighborhood rasois and tandoors with smart arrival forecasting — so your food leaves the kadhai and reaches your table piping hot.
+                Thandi biryani aur soggy dosas ko bolo bye-bye. justwoww brings you iconic neighborhood rasois and tandoors with smart arrival forecasting — so your food leaves the kadhai and reaches your table piping hot.
               </p>
 
               {/* Dynamic Indian Cravings Category Chips */}
@@ -894,7 +885,7 @@ export default function Landing() {
                 title: 'Steaming Hot at Doorstep',
                 desc: 'Enjoy piping hot food with fresh aromas intact, delivered within the estimated minute.',
                 icon: CheckCircle2,
-                badge: 'Asli Zaika'
+                badge: 'Asli justwoww'
               }
             ].map((card, idx) => {
               const Icon = card.icon;
@@ -1114,11 +1105,11 @@ export default function Landing() {
                   <h3 className="font-serif text-2xl font-bold text-white mt-1">Fleet Operations</h3>
                 </div>
                 <p className="text-xs sm:text-sm text-stone-400 leading-relaxed">
-                  Inspect multi-dimensional OLAP analytics (Slice, Dice, Rollup), track model accuracy drift, and manage system accounts.
+                  Inspect real-time fleet analytics, track ML model accuracy and feature importance, and manage platform operations.
                 </p>
                 <ul className="text-xs space-y-2 text-stone-300 pt-2">
                   <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-orange-400" /> Multi-Dimensional OLAP Reports
+                    <CheckCircle2 className="w-4 h-4 text-orange-400" /> Operational & Fleet Analytics
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-orange-400" /> Prediction Model Diagnostics
@@ -1155,14 +1146,7 @@ export default function Landing() {
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 pb-12 border-b border-stone-800">
             
             <div className="md:col-span-5 space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-orange-600 flex items-center justify-center text-white">
-                  <Flame className="w-5 h-5" />
-                </div>
-                <span className="font-serif font-bold text-2xl tracking-tight">
-                  Zaika<span className="text-orange-500">Pulse</span>
-                </span>
-              </div>
+              <Logo size="md" theme="dark" tagline="Instant Food • Punctual Delivery" to="/" />
               <p className="text-stone-400 text-xs sm:text-sm max-w-sm leading-relaxed">
                 Celebrating authentic Indian rasois with synchronous kitchen dispatch, transparent arrival times, and piping hot food delivery.
               </p>
@@ -1213,7 +1197,7 @@ export default function Landing() {
           </div>
 
           <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-stone-500 gap-4">
-            <p>© {new Date().getFullYear()} ZaikaPulse Delivery Technologies. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} justwoww Technologies. All rights reserved.</p>
             <p className="flex items-center gap-1">
               Crafted with authentic food love and intelligent routing.
             </p>

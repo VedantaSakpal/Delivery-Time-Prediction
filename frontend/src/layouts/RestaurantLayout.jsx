@@ -2,6 +2,7 @@ import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../utils/supabase';
 import { Store, LogOut, LayoutDashboard, Flame, ChefHat, Sparkles } from 'lucide-react';
 import NotificationBell from '../components/NotificationBell';
+import Logo from '../components/Logo';
 
 export default function RestaurantLayout() {
   const navigate = useNavigate();
@@ -21,17 +22,7 @@ export default function RestaurantLayout() {
       {/* Merchant Sidebar */}
       <aside className="w-64 bg-amber-950 text-white flex flex-col border-r border-amber-900 shadow-md">
         <div className="h-20 flex items-center px-6 border-b border-amber-900">
-          <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-amber-600 flex items-center justify-center text-white shadow-sm shadow-amber-600/30">
-              <ChefHat className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="font-display font-black text-xl tracking-tight text-white">
-                Zaika<span className="text-amber-400">Pulse</span>
-              </span>
-              <p className="text-[10px] text-amber-300 font-extrabold uppercase tracking-wider">Kitchen Partner</p>
-            </div>
-          </Link>
+          <Logo size="sm" theme="dark" tagline="Kitchen Partner" to="/" />
         </div>
 
         <nav className="flex-1 py-6 px-3">

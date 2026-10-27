@@ -35,7 +35,7 @@ import AdminOrders from './pages/admin/AdminOrders';
 import Analytics from './pages/admin/Analytics';
 import ModelInfo from './pages/admin/ModelInfo';
 import AdminReports from './pages/admin/AdminReports';
-import AdminWarehouse from './pages/admin/AdminWarehouse';
+
 
 // Restaurant Pages
 import RestaurantDashboard from './pages/restaurant/RestaurantDashboard';
@@ -90,7 +90,7 @@ function App() {
             <Route path="restaurants" element={<AdminRestaurants />} />
             <Route path="orders" element={<AdminOrders />} />
             <Route path="predictions" element={<AdminPredictions />} />
-            <Route path="warehouse" element={<AdminWarehouse />} />
+            <Route path="warehouse" element={<Navigate to="/admin/analytics" replace />} />
             <Route path="analytics" element={<Analytics />} />
             <Route path="reports" element={<AdminReports />} />
             <Route path="model" element={<ModelInfo />} />

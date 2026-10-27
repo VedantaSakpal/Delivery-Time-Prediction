@@ -58,7 +58,7 @@ export default function Dashboard() {
             Culinary AI Active
           </div>
           <h1 className="font-display text-3xl sm:text-4xl font-black">
-            Welcome back to ZaikaPulse
+            Welcome back to justwoww
           </h1>
           <p className="text-white/90 text-sm leading-relaxed">
             Garma-garam khana, perfectly timed. Your personal hub for predictive arrival times, authentic Indian culinary orders, and transit analytics.

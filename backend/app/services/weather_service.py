@@ -75,7 +75,7 @@ def fetch_live_weather(
             f"&current=temperature_2m,relative_humidity_2m,precipitation,rain,weather_code,wind_speed_10m"
             f"&timezone=auto"
         )
-        req = urllib.request.Request(url, headers={"User-Agent": "ZaikaPulse-Delivery/1.0"})
+        req = urllib.request.Request(url, headers={"User-Agent": "justwoww-Delivery/1.0"})
         with urllib.request.urlopen(req, timeout=4) as response:
             payload = json.loads(response.read().decode("utf-8"))
             curr = payload.get("current", {})

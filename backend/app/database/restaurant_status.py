@@ -37,7 +37,7 @@ def is_restaurant_terminated(restaurant_id: str, description: Optional[str] = No
 
     return False, None, None
 
-def terminate_partnership(restaurant_id: str, reason: str, admin_email: str = "admin@zaikapulse.com"):
+def terminate_partnership(restaurant_id: str, reason: str, admin_email: str = "admin@justwoww.com"):
     store = load_status_store()
     now_iso = datetime.now(timezone.utc).isoformat()
     store[restaurant_id] = {

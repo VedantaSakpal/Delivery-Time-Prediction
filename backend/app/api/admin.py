@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Body
 from typing import List, Dict, Optional, Any
 from pydantic import BaseModel
 import pandas as pd
+from app.ml.predictor import get_model_coefficients
 from app.api.deps import get_current_admin
 from app.database.supabase import supabase
 from app.database.restaurant_status import (
@@ -110,7 +111,8 @@ def get_model_info(current_admin: dict = Depends(get_current_admin)):
             "Vehicle_Type", "Preparation_Time_min", "Courier_Experience_yrs"
         ],
         "training_dataset": "Food_Delivery_Times(1).csv",
-        "model_status": "Active"
+        "model_status": "Active",
+        "coefficients_metadata": get_model_coefficients()
     }
 
 @router.get("/restaurants")
@@ -223,7 +225,7 @@ def terminate_restaurant(
             raise HTTPException(status_code=404, detail="Restaurant not found")
 
         r_data = res.data
-        admin_email = current_admin.get("email", "admin@zaikapulse.com")
+        admin_email = current_admin.get("email", "admin@justwoww.com")
         term_info = terminate_partnership(restaurant_id, req.reason, admin_email)
 
         curr_desc = clean_description(r_data.get("description"))
@@ -309,7 +311,7 @@ def get_partner_applications(current_admin: dict = Depends(get_current_admin)):
 def approve_partner_application(app_id: str, current_admin: dict = Depends(get_current_admin)):
     try:
         from app.database.partner_applications import approve_application
-        admin_email = current_admin.get("email", "admin@zaikapulse.com")
+        admin_email = current_admin.get("email", "admin@justwoww.com")
         updated_app = approve_application(app_id, admin_email)
 
         # Notify applicant
@@ -345,7 +347,7 @@ def reject_partner_application(
 ):
     try:
         from app.database.partner_applications import reject_application
-        admin_email = current_admin.get("email", "admin@zaikapulse.com")
+        admin_email = current_admin.get("email", "admin@justwoww.com")
         updated_app = reject_application(app_id, req.reason, admin_email)
 
         # Notify applicant

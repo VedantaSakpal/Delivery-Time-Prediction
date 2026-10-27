@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '../../utils/supabase';
 import { Link, useNavigate } from 'react-router-dom';
+import Logo from '../../components/Logo';
 import { Mail, Lock, User, Loader2, Flame, ArrowLeft, Star, Sparkles } from 'lucide-react';
 
 export default function Register() {
@@ -66,7 +67,7 @@ export default function Register() {
           className="inline-flex items-center gap-2 text-xs font-bold text-[#6E6157] hover:text-orange-600 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to ZaikaPulse Home
+          Back to justwoww Home
         </Link>
       </div>
 
@@ -82,15 +83,7 @@ export default function Register() {
           <div className="absolute inset-0 bg-gradient-to-t from-[#191411] via-[#191411]/70 to-transparent" />
           
           <div className="relative z-10 space-y-3">
-            <div className="w-10 h-10 rounded-2xl bg-orange-600 flex items-center justify-center text-white shadow-md">
-              <Flame className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="font-display font-black text-2xl tracking-tight text-white">
-                Zaika<span className="text-orange-500">Pulse</span>
-              </span>
-              <p className="text-xs text-orange-300 font-bold uppercase tracking-wider">Desi Zaika • Punctual Delivery Har Baar</p>
-            </div>
+            <Logo size="md" theme="dark" tagline="Instant Food • Punctual Delivery" to="/" />
           </div>
 
           <div className="relative z-10 space-y-4 pt-16">

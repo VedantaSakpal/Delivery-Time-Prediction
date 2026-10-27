@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { Loader2, Server, CheckCircle, Database } from 'lucide-react';
 import ModelComparisonTable from '../../components/ModelComparisonTable';
+import LinearSuperpowers from '../../components/LinearSuperpowers';
 
 export default function ModelInfo() {
   const [modelInfo, setModelInfo] = useState(null);
@@ -90,6 +91,8 @@ export default function ModelInfo() {
       </div>
 
       <ModelComparisonTable />
+
+      <LinearSuperpowers />
     </div>
   );
 }

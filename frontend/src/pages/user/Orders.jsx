@@ -99,7 +99,7 @@ export default function Orders() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <h1 className="font-display font-black text-3xl text-[#191411]">My Zaika Orders</h1>
+            <h1 className="font-display font-black text-3xl text-[#191411]">My justwoww Orders</h1>
             {activeOrdersCount > 0 && (
               <span className="px-2.5 py-0.5 rounded-full text-xs font-black uppercase tracking-wider bg-orange-600 text-white shadow-xs animate-pulse">
                 {activeOrdersCount} Active
@@ -252,7 +252,7 @@ export default function Orders() {
                     <div className="flex-1 bg-[#FAF7F2] p-5 rounded-2xl border border-[#ECE4D8] space-y-3">
                       <div className="flex items-center gap-2">
                         <Clock className="w-4 h-4 text-orange-600" />
-                        <h4 className="font-display font-bold text-xs text-[#191411]">Zaika ETA Forecast</h4>
+                        <h4 className="font-display font-bold text-xs text-[#191411]">justwoww ETA Forecast</h4>
                       </div>
 
                       <div className="grid grid-cols-2 gap-3">

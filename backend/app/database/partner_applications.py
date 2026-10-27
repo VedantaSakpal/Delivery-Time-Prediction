@@ -70,7 +70,7 @@ def get_application_by_email(email: str) -> Optional[Dict[str, Any]]:
             return app
     return None
 
-def approve_application(app_id: str, admin_email: str = "admin@zaikapulse.com") -> Dict[str, Any]:
+def approve_application(app_id: str, admin_email: str = "admin@justwoww.com") -> Dict[str, Any]:
     apps = load_applications()
     if app_id not in apps:
         raise ValueError("Application not found")
@@ -135,7 +135,7 @@ def approve_application(app_id: str, admin_email: str = "admin@zaikapulse.com") 
     return app
 
 
-def reject_application(app_id: str, reason: str, admin_email: str = "admin@zaikapulse.com") -> Dict[str, Any]:
+def reject_application(app_id: str, reason: str, admin_email: str = "admin@justwoww.com") -> Dict[str, Any]:
     apps = load_applications()
     if app_id not in apps:
         raise ValueError("Application not found")

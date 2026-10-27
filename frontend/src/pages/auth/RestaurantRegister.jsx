@@ -131,7 +131,7 @@ export default function RestaurantRegister() {
               Application Under Review
             </span>
             <h1 className="font-display text-3xl font-black text-[#191411]">
-              Welcome to the Zaika Family!
+              Welcome to the justwoww Family!
             </h1>
             <p className="text-sm text-[#6E6157] max-w-md mx-auto">
               Your partnership application for <span className="font-bold text-[#191411]">{submittedApp.restaurant_name}</span> has been received and queued for administrative approval.
@@ -188,7 +188,7 @@ export default function RestaurantRegister() {
               to="/"
               className="w-full sm:w-auto px-6 py-3 bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-xs rounded-xl transition-all text-center"
             >
-              Back to Zaika Home
+              Back to justwoww Home
             </Link>
           </div>
         </div>
@@ -223,7 +223,7 @@ export default function RestaurantRegister() {
           <div className="relative z-10 space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-xs text-xs font-black uppercase tracking-wider text-white">
               <Sparkles className="w-3.5 h-3.5 text-amber-200" />
-              Partner with ZaikaPulse
+              Partner with justwoww
             </div>
             <h1 className="font-display text-3xl sm:text-4xl font-black text-white">
               Grow Your Kitchen with India’s Smartest Food Delivery Network

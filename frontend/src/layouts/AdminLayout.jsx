@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { supabase } from '../utils/supabase';
 import { LayoutDashboard, Users, FileText, PieChart, Database, LogOut, Store, ShoppingBag, Flame, Activity, Layers, Cpu } from 'lucide-react';
 import NotificationBell from '../components/NotificationBell';
+import Logo from '../components/Logo';
 
 
 const AdminLayout = () => {
@@ -17,8 +18,7 @@ const AdminLayout = () => {
 
   const navItems = [
     { name: 'Fleet Overview', path: '/admin/dashboard', icon: LayoutDashboard },
-    { name: 'Data Warehouse & Mining', path: '/admin/warehouse', icon: Database },
-    { name: 'OLAP Analytics', path: '/admin/analytics', icon: PieChart },
+    { name: 'Fleet Analytics', path: '/admin/analytics', icon: PieChart },
     { name: 'Executive Reports (PDF)', path: '/admin/reports', icon: FileText },
     { name: 'Live Orders', path: '/admin/orders', icon: ShoppingBag },
     { name: 'Kitchen Partners', path: '/admin/restaurants', icon: Store },
@@ -32,17 +32,7 @@ const AdminLayout = () => {
       {/* Dark Espresso Fleet Sidebar */}
       <div className="w-64 bg-[#191411] flex flex-col text-white border-r border-stone-800 shadow-md">
         <div className="h-20 flex items-center px-6 border-b border-stone-800">
-          <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-orange-600 flex items-center justify-center text-white shadow-md shadow-orange-600/30">
-              <Flame className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="font-display font-black text-xl tracking-tight text-white">
-                Zaika<span className="text-orange-500">Pulse</span>
-              </span>
-              <p className="text-[10px] text-orange-400 font-extrabold uppercase tracking-wider">Fleet Master</p>
-            </div>
-          </Link>
+          <Logo size="sm" theme="dark" tagline="Fleet Master" to="/" />
         </div>
         
         <div className="flex-1 py-6 flex flex-col gap-1.5 px-3">

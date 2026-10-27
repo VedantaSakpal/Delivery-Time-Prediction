@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import LinearSuperpowers from '../../components/LinearSuperpowers';
 import api from '../../services/api';
 import {
   Loader2, Clock, Sparkles, MapPin, ChefHat, Bike, Navigation,
@@ -162,7 +163,7 @@ export default function Predict() {
         <div className="relative z-10 space-y-3 max-w-2xl">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-extrabold uppercase tracking-wider">
             <Sparkles className="w-3.5 h-3.5" />
-            ZaikaPulse Arrival Engine
+            justwoww Arrival Engine
           </div>
           <h1 className="font-display text-3xl sm:text-4xl font-black">
             Live Kitchen & Transit Prediction
@@ -396,9 +397,14 @@ export default function Predict() {
             className="w-full py-4 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-2xl shadow-lg shadow-orange-600/25 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-75"
           >
             {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
-            <span>Calculate Zaika Arrival Time</span>
+            <span>Calculate justwoww Arrival Time</span>
           </button>
         </form>
+
+        {/* ML Superpowers: What-If Counterfactual Simulator */}
+        <div className="pt-8 border-t border-[#ECE4D8]">
+          <LinearSuperpowers initialFeatures={formData} />
+        </div>
 
         {/* Prediction Results Display */}
         {result && (

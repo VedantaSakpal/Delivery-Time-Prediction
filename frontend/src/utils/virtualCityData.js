@@ -134,7 +134,7 @@ export function getRestaurantVirtualLocation(restaurantId, restaurantName = '') 
 
   // Deterministic hash based on ID/Name
   let hash = 0;
-  const str = restaurantId || restaurantName || 'zaika-default';
+  const str = restaurantId || restaurantName || 'justwoww-default';
   for (let i = 0; i < str.length; i++) {
     hash = (hash << 5) - hash + str.charCodeAt(i);
     hash |= 0;

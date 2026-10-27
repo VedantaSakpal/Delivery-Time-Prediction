@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { supabase } from '../utils/supabase';
 import { LayoutDashboard, Clock, History, User, LogOut, Store, ShoppingBag, Flame, Sparkles } from 'lucide-react';
 import NotificationBell from '../components/NotificationBell';
+import Logo from '../components/Logo';
 
 
 const UserLayout = () => {
@@ -40,17 +41,7 @@ const UserLayout = () => {
         
         {/* Brand Bar */}
         <div className="h-20 flex items-center px-6 border-b border-[#ECE4D8]">
-          <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-white shadow-sm shadow-orange-500/20">
-              <Flame className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="font-display font-black text-xl tracking-tight text-[#191411]">
-                Zaika<span className="text-orange-600">Pulse</span>
-              </span>
-              <p className="text-[10px] text-[#6E6157] font-semibold uppercase tracking-wider">Diner Experience</p>
-            </div>
-          </Link>
+          <Logo size="sm" tagline="Diner Portal" to="/" />
         </div>
         
         {/* Nav Items */}
@@ -83,7 +74,7 @@ const UserLayout = () => {
             </div>
             <div className="overflow-hidden">
               <p className="text-sm font-bold text-[#191411] truncate">{profile?.full_name || 'Diner Guest'}</p>
-              <p className="text-xs text-[#6E6157] truncate">{profile?.email || 'diner@zaikapulse.com'}</p>
+              <p className="text-xs text-[#6E6157] truncate">{profile?.email || 'diner@justwoww.com'}</p>
             </div>
           </div>
           <button 

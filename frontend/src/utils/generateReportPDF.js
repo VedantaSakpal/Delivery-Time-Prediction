@@ -33,7 +33,7 @@ export function generateOperationsReportPDF(reportData, meta = {}) {
   const margin = 14;
   const contentWidth = pageWidth - margin * 2; // 182mm
 
-  const entityName = reportData?.entity_name || (meta.userRole === 'admin' ? 'ZaikaPulse Fleet Platform' : 'Kitchen Partner');
+  const entityName = reportData?.entity_name || (meta.userRole === 'admin' ? 'justwoww Fleet Platform' : 'Kitchen Partner');
   const granularity = reportData?.granularity || 'day';
   const granLabel = {
     day: 'Daily Operations & Revenue Audit',
@@ -55,28 +55,60 @@ export function generateOperationsReportPDF(reportData, meta = {}) {
 
   // ─── 1. Header Banner ───
   doc.setFillColor(25, 20, 17); // Dark Espresso #191411
-  doc.rect(0, 0, pageWidth, 42, 'F');
+  doc.rect(0, 0, pageWidth, 44, 'F');
 
   // Decorative Saffron Line
-  doc.setFillColor(234, 88, 12); // #ea580c
-  doc.rect(0, 42, pageWidth, 3, 'F');
+  doc.setFillColor(255, 87, 34); // #FF5722
+  doc.rect(0, 44, pageWidth, 2.5, 'F');
 
   // Brand Name & Title
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(17);
-  doc.text('ZAIKAPULSE ENTERPRISE', margin, 15);
+  // Draw justwoww Vector Logo Icon Mark on the left
+  const logoX = margin;
+  const logoY = 9;
+  const logoSize = 25;
+
+  // Squircle Base
+  doc.setFillColor(255, 75, 43); // Electric Coral
+  doc.roundedRect(logoX, logoY, logoSize, logoSize, 6, 6, 'F');
+
+  // Inner subtle highlight border
+  doc.setDrawColor(255, 255, 255);
+  doc.setLineWidth(0.4);
+  doc.roundedRect(logoX + 0.8, logoY + 0.8, logoSize - 1.6, logoSize - 1.6, 5.2, 5.2, 'D');
+
+  // Speed 'W' Monogram
+  doc.setDrawColor(255, 255, 255);
+  doc.setLineWidth(1.8);
+  doc.line(logoX + 5, logoY + 7.5, logoX + 9, logoY + 17.5);
+  doc.line(logoX + 9, logoY + 17.5, logoX + 12.5, logoY + 9.5);
+  doc.line(logoX + 12.5, logoY + 9.5, logoX + 16, logoY + 17.5);
+  doc.line(logoX + 16, logoY + 17.5, logoX + 20, logoY + 7.5);
+
+  // Joyful Accent Smile Underneath
+  doc.setDrawColor(255, 224, 130);
+  doc.setLineWidth(1.1);
+  doc.line(logoX + 7, logoY + 20.5, logoX + 18, logoY + 20.5);
+
+  // 4-Point 'WOW' Sparkle Star
+  doc.setFillColor(255, 213, 79);
+  doc.circle(logoX + 21, logoY + 5.5, 1.3, 'F');
+
+  const textX = logoX + logoSize + 4.5;
+  doc.text('JUSTWOWW ENTERPRISE', textX, 16);
 
   doc.setFontSize(11);
   doc.setTextColor(251, 146, 60); // Warm Amber #fb923c
-  doc.text(granLabel.toUpperCase(), margin, 23);
+  doc.text(granLabel.toUpperCase(), textX, 23);
 
   // Sub-header details
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8.5);
   doc.setTextColor(214, 211, 209);
-  doc.text(`Entity: ${entityName}`, margin, 31);
-  doc.text(`Generated: ${timestamp}  |  Official Transaction Audit`, margin, 37);
+  doc.text(`Entity: ${entityName}`, textX, 30);
+  doc.text(`Generated: ${timestamp}  |  Official Transaction Audit`, textX, 36);
 
   // Right-side badge
   doc.setFillColor(41, 37, 36);
@@ -91,7 +123,7 @@ export function generateOperationsReportPDF(reportData, meta = {}) {
   doc.text(`Scope: ${reportData?.scope === 'restaurant' ? 'Restaurant' : 'Platform Fleet'}`, pageWidth - margin - 50, 22);
   doc.text(`Total Orders: ${formatNumber(summary.total_orders)}`, pageWidth - margin - 50, 28);
 
-  let currentY = 51;
+  let currentY = 53;
 
   // ─── 2. Executive KPI Cards Grid ───
   const kpiCards = [
@@ -205,7 +237,7 @@ export function generateOperationsReportPDF(reportData, meta = {}) {
       valign: 'middle',
     },
     headStyles: {
-      fillColor: [234, 88, 12],
+      fillColor: [255, 87, 34],
       textColor: [255, 255, 255],
       fontStyle: 'bold',
       halign: 'center',
@@ -333,7 +365,7 @@ export function generateOperationsReportPDF(reportData, meta = {}) {
       margin: { left: margin, right: margin },
       theme: 'grid',
       styles: { fontSize: 8, cellPadding: 2.2, textColor: [30, 41, 59], valign: 'middle' },
-      headStyles: { fillColor: [234, 88, 12], textColor: [255, 255, 255], fontStyle: 'bold' },
+      headStyles: { fillColor: [255, 87, 34], textColor: [255, 255, 255], fontStyle: 'bold' },
       alternateRowStyles: { fillColor: [250, 247, 242] },
       columnStyles: colConfig,
     });
@@ -435,7 +467,7 @@ export function generateOperationsReportPDF(reportData, meta = {}) {
     doc.setFontSize(7.5);
     doc.setTextColor(140, 130, 120);
     doc.text(
-      `ZaikaPulse Operational Telemetry  |  Page ${i} of ${totalPages}`,
+      `justwoww Operational Telemetry  |  Page ${i} of ${totalPages}`,
       pageWidth / 2,
       pageHeight - 6,
       { align: 'center' }
@@ -445,7 +477,7 @@ export function generateOperationsReportPDF(reportData, meta = {}) {
   // Generate safe filename and trigger download
   const cleanEntity = entityName.replace(/[^a-zA-Z0-9_-]/g, '_');
   const dateStr = new Date().toISOString().split('T')[0];
-  const filename = `ZaikaPulse_${cleanEntity}_${granularity}_report_${dateStr}.pdf`;
+  const filename = `justwoww_${cleanEntity}_${granularity}_report_${dateStr}.pdf`;
 
   doc.save(filename);
 }

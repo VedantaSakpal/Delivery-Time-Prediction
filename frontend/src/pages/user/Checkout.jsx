@@ -312,7 +312,7 @@ export default function Checkout() {
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-[10px] uppercase font-black tracking-wider bg-white/25 px-2.5 py-0.5 rounded-full text-white">
-                  Festive Zaika Savings
+                  justwoww Festive Savings
                 </span>
               </div>
               <h3 className="text-xl font-display font-black text-white mt-1">
@@ -408,7 +408,7 @@ export default function Checkout() {
             <div className="bg-gradient-to-r from-orange-600 to-amber-600 px-6 py-4 flex items-center justify-between">
               <div>
                 <h3 className="text-white font-display font-black text-lg flex items-center gap-2">
-                  <Clock className="w-5 h-5" /> Zaika AI Delivery Estimate
+                  <Clock className="w-5 h-5" /> justwoww AI Delivery Estimate
                 </h3>
                 <p className="text-orange-100 text-xs mt-0.5">
                   Calculated with 7-factor linear regression ML model using your exact {confirmed.distance_km || distanceKm} km 3D route and {confirmed.time_of_day} time factors
@@ -508,7 +508,7 @@ export default function Checkout() {
       {/* Main Interactive Form with 3D Map */}
       <div className="flex-1 bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-[#ECE4D8] space-y-6">
         <div>
-          <h2 className="font-display font-black text-2xl text-[#191411]">Complete Your Zaika Order</h2>
+          <h2 className="font-display font-black text-2xl text-[#191411]">Complete Your justwoww Order</h2>
           <p className="text-xs text-[#6E6157] mt-1">
             Pick your delivery location on the 3D Virtual Map to calculate transit distance for AI arrival prediction
           </p>
@@ -614,7 +614,7 @@ export default function Checkout() {
               className="w-full bg-orange-600 text-white font-bold py-3.5 rounded-xl hover:bg-orange-700 flex items-center justify-center gap-2 transition-colors disabled:opacity-60 shadow-md shadow-orange-600/25 cursor-pointer text-xs"
             >
               {loading
-                ? <><Loader2 className="animate-spin w-4 h-4" /> Placing your Zaika order...</>
+                ? <><Loader2 className="animate-spin w-4 h-4" /> Placing your justwoww order...</>
                 : `Confirm & Place Order (${distanceKm} km · ₹${total.toLocaleString('en-IN')})`}
             </button>
           </div>
@@ -629,7 +629,7 @@ export default function Checkout() {
           <p className="text-[10px] uppercase font-bold text-[#938376]">Ordering From</p>
           <p className="text-xs font-extrabold text-[#191411] flex items-center gap-1.5">
             <Building2 size={13} className="text-orange-600" />
-            {restaurant_name || 'Zaika Culinary Hub'}
+            {restaurant_name || 'justwoww Culinary Hub'}
           </p>
           <div className="text-[11px] text-emerald-700 font-semibold flex items-center gap-1 pt-1">
             <Navigation size={12} className="fill-emerald-600 text-emerald-600" />

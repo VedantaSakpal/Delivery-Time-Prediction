@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { supabase } from '../../utils/supabase';
 import api from '../../services/api';
 import { Link, useNavigate } from 'react-router-dom';
+import Logo from '../../components/Logo';
 import {
   Mail, Lock, Loader2, Store, ArrowLeft, ChefHat, Sparkles,
   AlertCircle, Clock, ShieldCheck, XCircle, RefreshCw
@@ -70,7 +71,7 @@ export default function RestaurantLogin() {
         // Check if terminated
         if (restaurant.description && restaurant.description.includes('[PARTNERSHIP_TERMINATED:')) {
           await supabase.auth.signOut();
-          setError("Your restaurant partnership is currently suspended by Zaika Fleet Administration. Please contact partner-support@zaikapulse.com for reinstatement assistance.");
+          setError("Your restaurant partnership is currently suspended by justwoww Fleet Administration. Please contact partner-support@justwoww.com for reinstatement assistance.");
           setLoading(false);
           return;
         }
@@ -99,7 +100,7 @@ export default function RestaurantLogin() {
           navigate('/restaurant/dashboard');
         } else {
           await supabase.auth.signOut();
-          setError("No registered kitchen found for this account. Have you applied yet? Click 'Become a Partner with Zaika' below to register.");
+          setError("No registered kitchen found for this account. Have you applied yet? Click 'Become a Partner with justwoww' below to register.");
         }
       }
     } catch (err) {
@@ -119,7 +120,7 @@ export default function RestaurantLogin() {
           className="inline-flex items-center gap-2 text-xs font-bold text-[#6E6157] hover:text-amber-700 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to ZaikaPulse Home
+          Back to justwoww Home Home
         </Link>
       </div>
 
@@ -139,7 +140,7 @@ export default function RestaurantLogin() {
           <div className="flex items-center gap-2.5">
             <Store className="w-4 h-4 text-amber-700 shrink-0" />
             <div>
-              <p className="text-xs font-bold text-amber-950">New to ZaikaPulse?</p>
+              <p className="text-xs font-bold text-amber-950">New to justwoww?</p>
               <p className="text-[11px] text-amber-800">List your kitchen and start receiving orders</p>
             </div>
           </div>
@@ -228,7 +229,7 @@ export default function RestaurantLogin() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="kitchen@zaikapulse.com"
+                placeholder="kitchen@justwoww.com"
                 className="w-full pl-10 pr-4 py-2.5 bg-[#FAF7F2] border border-[#ECE4D8] rounded-xl text-xs font-medium text-[#191411] placeholder-[#938376] focus:ring-2 focus:ring-amber-500 focus:outline-none"
               />
             </div>
